@@ -1,0 +1,28 @@
+{
+    "config": {
+        "abort": {
+            "reconfigure_successful": "Re-configuration was successful"
+        },
+        "error": {},
+        "step": {
+            "reconfigure": {
+                "data": {
+                    "name": "Enter display name of the charge station",
+                    "station_number": "Enter station number obtained from map via developer tools.",
+                    "api_key": "Enter api key obtained from map via Ocp-Apim-Subscription-Key header via developer tools."
+                },
+                "description": "Provide configuration data. See documentation for further info.",
+                "title": "Add EnBw Charge station"
+            },
+            "user": {
+                "data": {
+                    "name": "Enter display name of the charge station",
+                    "station_number": "Enter station number obtained from map via developer tools.",
+                    "api_key": "Enter api key obtained from map via Ocp-Apim-Subscription-Key header via developer tools."
+                },
+                "description": "Provide configuration data. See documentation for further info.",
+                "title": "Add EnBw Charge station"
+            }
+        }
+    }
+}

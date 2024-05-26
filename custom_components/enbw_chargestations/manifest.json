@@ -1,0 +1,13 @@
+{
+  "domain": "enbw_chargestations",
+  "name": "ENBW Charge Stations",
+  "codeowners": ["@mkenfenheuer"],
+  "config_flow": true,
+  "dependencies": [],
+  "integration_type": "device",
+  "documentation": "https://github.com/mKenfenheuer/enbw_chargestations/",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/mKenfenheuer/enbw_chargestations/issues",
+  "requirements": ["requests>=2.25.1"],
+  "version": "0.2.1"
+}
