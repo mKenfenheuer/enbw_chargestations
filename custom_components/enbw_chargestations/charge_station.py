@@ -141,7 +141,7 @@ class ChargePointEntity(ChargeStationEntity):
         self.update_attributes({"plugTypeName": state["connectors"][0]["plugTypeName"]})
         self.update_attributes({"MaxPowerInKw": state["connectors"][0]["MaxPowerInKw"]})
         self.update_attributes({"cableAttached": state["connectors"][0]["cableAttached"]})
-evseId
+
     @property
     def icon(self) -> str | None:
         """Icon of the entity, based on time."""
