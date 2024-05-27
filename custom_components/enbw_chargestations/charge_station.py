@@ -15,6 +15,11 @@ from .utils import Utils
 
 _LOGGER = logging.getLogger(__name__)
 
+ATTR_CABLE_ATTACHED = "cableAttached"
+ATTR_PLUG_TYPE_NAME = "plugTypeName"
+ATTR_MAX_POWER_IN_KW = "maxPowerInKw"
+ATTR_EVESE_ID = "evseId"
+
 
 class ChargeStation:
     """Implementation for charge stations."""
@@ -114,10 +119,10 @@ class ChargeStationEntity(SensorEntity):
         """Update attributes."""
         """  self._attributes[ATTR_DAY] = self._departure["day"] """
         """self._attributes = attributes"""
-        self._attributes["cableAttached"] =  chargePoint["connectors"][0]["cableAttached"]
-        self._attributes["plugTypeName"] =  chargePoint["connectors"][0]["plugTypeName"]
-        self._attributes["maxPowerInKw"] =  chargePoint["connectors"][0]["maxPowerInKw"]
-        self._attributes["evseId"] =  chargePoint["evseId"]
+        self._attributes[ATTR_CABLE_ATTACHED] =  chargePoint["connectors"][0]["cableAttached"]
+        self._attributes[ATTR_PLUG_TYPE_NAME] =  chargePoint["connectors"][0]["plugTypeName"]
+        self._attributes[ATTR_MAX_POWER_IN_KW] =  chargePoint["connectors"][0]["maxPowerInKw"]
+        self._attributes[ATTR_EVESE_ID] =  chargePoint["evseId"]
 
 
 class ChargePointEntity(ChargeStationEntity):
