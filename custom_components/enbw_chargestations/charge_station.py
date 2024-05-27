@@ -116,6 +116,7 @@ class ChargeStationEntity(SensorEntity):
         """self._attributes = attributes"""
         self._attributes["cableAttached"] =  chargePoint["connectors"][0]["cableAttached"]
         self._attributes["plugTypeName"] =  chargePoint["connectors"][0]["plugTypeName"]
+        self._attributes["maxPowerInKw"] =  chargePoint["connectors"][0]["maxPowerInKw"]
         self._attributes["evseId"] =  chargePoint["evseId"]
 
 
