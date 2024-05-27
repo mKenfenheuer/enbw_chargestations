@@ -1,5 +1,11 @@
 """Constants for pi assistant component"""
 
+ATTR_CABLE_ATTACHED = "cableAttached"
+ATTR_PLUG_TYPE_NAME = "plugTypeName"
+ATTR_MAX_POWER_IN_KW = "maxPowerInKw"
+ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW = "maxPowerInKwPerPlugType"
+ATTR_EVESE_ID = "evseId"
+ATTR_ADDRESS = "address"
 DOMAIN = "enbw_chargestations"
 STATION_NUMBER = "station_number"
 NAME = "name"

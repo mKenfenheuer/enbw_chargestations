@@ -3,6 +3,7 @@
 from abc import abstractmethod
 from time import time
 from typing import Any, override
+from itertools import chain
 
 import requests
 import logging
@@ -10,15 +11,18 @@ import logging
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN
+from .const import (
+    ATTR_ADDRESS,
+    ATTR_CABLE_ATTACHED,
+    ATTR_EVESE_ID,
+    ATTR_MAX_POWER_IN_KW,
+    ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW,
+    ATTR_PLUG_TYPE_NAME,
+    DOMAIN,
+)
 from .utils import Utils
 
 _LOGGER = logging.getLogger(__name__)
-
-ATTR_CABLE_ATTACHED = "cableAttached"
-ATTR_PLUG_TYPE_NAME = "plugTypeName"
-ATTR_MAX_POWER_IN_KW = "maxPowerInKw"
-ATTR_EVESE_ID = "evseId"
 
 
 class ChargeStation:
@@ -115,14 +119,10 @@ class ChargeStationEntity(SensorEntity):
         """Return entity specific state attributes."""
         return self._attributes
 
-    def update_attributes(self, chargePoint):
+    def update_attributes(self, attributes: dict[str, Any]):
         """Update attributes."""
-        """  self._attributes[ATTR_DAY] = self._departure["day"] """
-        """self._attributes = attributes"""
-        self._attributes[ATTR_CABLE_ATTACHED] =  chargePoint["connectors"][0]["cableAttached"]
-        self._attributes[ATTR_PLUG_TYPE_NAME] =  chargePoint["connectors"][0]["plugTypeName"]
-        self._attributes[ATTR_MAX_POWER_IN_KW] =  chargePoint["connectors"][0]["maxPowerInKw"]
-        self._attributes[ATTR_EVESE_ID] =  chargePoint["evseId"]
+        for kvp in attributes:
+            self._attributes[kvp] = attributes[kvp]
 
 
 class ChargePointEntity(ChargeStationEntity):
@@ -147,11 +147,34 @@ class ChargePointEntity(ChargeStationEntity):
             return
         state = state[0]
         self.update_state(state["status"])
-        self.update_attributes(state)
-        """self.update_attributes({"evseId": state["evseId"]})"""
-        """self.update_attributes({"plugTypeName": state["connectors"][0]["plugTypeName"]})"""
-        """self.update_attributes({"MaxPowerInKw": state["connectors"][0]["MaxPowerInKw"]})"""
-        """self.update_attributes({"cableAttached": state["connectors"][0]["cableAttached"]})"""
+
+        plugTypeNames = [connector["plugTypeName"] for connector in state["connectors"]]
+        plugTypeCableAttached = {}
+        plugTypePower = {}
+
+        connectors = []
+        for connector in state["connectors"]:
+            connectors.append(connector)  # noqa: PERF402
+
+        for typeName in plugTypeNames:
+            plugTypeCableAttached[typeName] = any(
+                connector["cableAttached"] for connector in connectors
+            )
+            plugTypePower[typeName] = max(
+                connector["maxPowerInKw"] for connector in connectors
+            )
+
+        self.update_attributes(
+            {
+                ATTR_CABLE_ATTACHED: plugTypeCableAttached,
+                ATTR_PLUG_TYPE_NAME: plugTypeNames,
+                ATTR_MAX_POWER_IN_KW: max(
+                    connector["maxPowerInKw"] for connector in state["connectors"]
+                ),
+                ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW: plugTypePower,
+                ATTR_ADDRESS: response["shortAddress"],
+            }
+        )
 
     @property
     def icon(self) -> str | None:
@@ -176,6 +199,33 @@ class ChargeStationStateEntity(ChargeStationEntity):
         """Update from rest response."""
         self.update_state(
             "Available" if response["availableChargePoints"] > 0 else "Unavailable"
+        )
+
+        plugTypeNames = response["plugTypeNames"]
+        plugTypeCableAttached = {}
+        plugTypePower = {}
+
+        connectors = []
+        for point in response["chargePoints"]:
+            for connector in point["connectors"]:
+                connectors.append(connector)  # noqa: PERF402
+
+        for typeName in plugTypeNames:
+            plugTypeCableAttached[typeName] = any(
+                connector["cableAttached"] for connector in connectors
+            )
+            plugTypePower[typeName] = max(
+                connector["maxPowerInKw"] for connector in connectors
+            )
+
+        self.update_attributes(
+            {
+                ATTR_CABLE_ATTACHED: plugTypeCableAttached,
+                ATTR_PLUG_TYPE_NAME: plugTypeNames,
+                ATTR_MAX_POWER_IN_KW: response["maxPowerInKw"],
+                ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW: plugTypePower,
+                ATTR_ADDRESS: response["shortAddress"],
+            }
         )
 
     @property
