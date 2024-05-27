@@ -114,7 +114,9 @@ class ChargeStationEntity(SensorEntity):
         """Update attributes."""
         """  self._attributes[ATTR_DAY] = self._departure["day"] """
         """self._attributes = attributes"""
-        self._attributes["cableAttached"] =  state["connectors"][0]["cableAttached"]
+        self._attributes["cableAttached"] =  chargePoint["connectors"][0]["cableAttached"]
+        self._attributes["plugTypeName"] =  chargePoint["connectors"][0]["plugTypeName"]
+        self._attributes["evseId"] =  chargePoint["evseId"]
 
 
 class ChargePointEntity(ChargeStationEntity):
