@@ -1,23 +1,27 @@
 """Charge station implementation."""
 
 from abc import abstractmethod
+from datetime import datetime, timezone
+from itertools import chain
+import logging
 from time import time
 from typing import Any, override
-from itertools import chain
 
 import requests
-import logging
 
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.core import HomeAssistant
 
 from .const import (
     ATTR_ADDRESS,
+    ATTR_AVAILABLE_CHARGE_POINTS,
     ATTR_CABLE_ATTACHED,
-    ATTR_EVESE_ID,
+    ATTR_EVSE_ID,
     ATTR_MAX_POWER_IN_KW,
     ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW,
     ATTR_PLUG_TYPE_NAME,
+    ATTR_TOTAL_CHARGE_POINTS,
+    ATTR_UPDATED_AT,
     DOMAIN,
 )
 from .utils import Utils
@@ -39,11 +43,14 @@ class ChargeStation:
         self.updated_at: float | None = None
         self.entities: list[ChargeStationEntity] = []
         self.unique_id: str = f"enbw_station_{station_number}"
+        self.updated_at: float = 0
 
     def update(self):
         """Update from rest api."""
-        if self.updated_at is not None and self.updated_at > time() - 1000 * 60:
+        if self.updated_at > time() - 60:
             return
+        self.updated_at = time()
+        _LOGGER.info("updating from rest api.")
         try:
             response = requests.get(
                 f"https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations/{self.station_number}",
@@ -64,7 +71,6 @@ class ChargeStation:
         except Exception as ex:  # pylint: disable=broad-except  # noqa: BLE001
             _LOGGER.exception(ex)
             return False
-        self.updated_at = time()
         return True
 
     def create_entities(self, response):
@@ -173,6 +179,11 @@ class ChargePointEntity(ChargeStationEntity):
                 ),
                 ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW: plugTypePower,
                 ATTR_ADDRESS: response["shortAddress"],
+                ATTR_EVSE_ID: state["evseId"],
+                ATTR_UPDATED_AT: datetime.fromtimestamp(
+                    self.station.updated_at,
+                    tz=timezone.utc,  # noqa: UP017
+                ),
             }
         )
 
@@ -225,6 +236,12 @@ class ChargeStationStateEntity(ChargeStationEntity):
                 ATTR_MAX_POWER_IN_KW: response["maxPowerInKw"],
                 ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW: plugTypePower,
                 ATTR_ADDRESS: response["shortAddress"],
+                ATTR_AVAILABLE_CHARGE_POINTS: response["availableChargePoints"],
+                ATTR_TOTAL_CHARGE_POINTS: response["numberOfChargePoints"],
+                ATTR_UPDATED_AT: datetime.fromtimestamp(
+                    self.station.updated_at,
+                    tz=timezone.utc,  # noqa: UP017
+                ),
             }
         )
 
