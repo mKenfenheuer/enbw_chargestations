@@ -7,9 +7,10 @@ from typing import Any, override
 import requests
 import logging
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.core import HomeAssistant
 
+from .const import DOMAIN
 from .utils import Utils
 
 _LOGGER = logging.getLogger(__name__)
@@ -62,6 +63,7 @@ class ChargeStation:
         self.entities.append(ChargeStationStateEntity(self.hass, self))
         self.entities.append(ChargePointCountEntity(self.hass, self))
         self.entities.append(ChargePointsAvailableEntity(self.hass, self))
+        self.entities.append(ChargePointsUnknownEntity(self.hass, self))
         for i in range(response["numberOfChargePoints"]):
             point_id = response["chargePoints"][i]["evseId"]
             self.entities.append(ChargePointEntity(self.hass, self, point_id, i + 1))
@@ -75,10 +77,7 @@ class ChargeStationEntity(SensorEntity):
         self.hass: HomeAssistant = hass
         self.station: ChargeStation = station
         self._state: str | None = None
-
-    def state(self):
-        """State."""
-        return self._state
+        self._attributes: dict[str, Any] = {}
 
     @abstractmethod
     def update_from_response(self, response):
@@ -90,11 +89,30 @@ class ChargeStationEntity(SensorEntity):
 
     def update_state(self, state: str):
         """Update state."""
-        self._state = state
+        self.native_value = state
+
+    @property
+    def device_info(self):
+        """Device info."""
+        return {
+            "identifiers": {
+                (
+                    DOMAIN,
+                    f"enbw_station_{Utils.generate_entity_id(self.station.station_number)}",
+                )
+            },
+            "name": self.station.name,
+            "manufacturer": "EnBW Energie Baden-Württemberg",
+        }
+
+    @property
+    def extra_state_attributes(self):
+        """Return entity specific state attributes."""
+        return self._attributes
 
     def update_attributes(self, attributes: dict[str, Any]):
         """Update attributes."""
-        self.state_attributes = attributes
+        self._attributes = attributes
 
 
 class ChargePointEntity(ChargeStationEntity):
@@ -121,6 +139,14 @@ class ChargePointEntity(ChargeStationEntity):
         self.update_state(state["status"])
         self.update_attributes({"plugTypeName": state["connectors"][0]["plugTypeName"]})
 
+    @property
+    def icon(self) -> str | None:
+        """Icon of the entity, based on time."""
+        if self.state == "AVAILABLE":
+            return "mdi:car-electric-outline"
+        else:
+            return "mdi:car-electric"
+
 
 class ChargeStationStateEntity(ChargeStationEntity):
     """ChargeStationStateEntity implementation."""
@@ -138,6 +164,14 @@ class ChargeStationStateEntity(ChargeStationEntity):
             "Available" if response["availableChargePoints"] > 0 else "Unavailable"
         )
 
+    @property
+    def icon(self) -> str | None:
+        """Icon of the entity, based on time."""
+        if self.state == "Available":
+            return "mdi:car-electric-outline"
+        else:
+            return "mdi:car-electric"
+
 
 class ChargePointsUnknownEntity(ChargeStationEntity):
     """ChargePointsUnknownEntity implementation."""
@@ -145,6 +179,7 @@ class ChargePointsUnknownEntity(ChargeStationEntity):
     def __init__(self, hass: HomeAssistant, station: ChargeStation) -> None:
         """Initialize."""
         super().__init__(hass, station)
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_name = f"{station.name} Unknown State Charge Points"
         self._attr_unique_id = Utils.generate_entity_id(
             f"{station.unique_id}_unknown_state_charge_points"
@@ -155,6 +190,11 @@ class ChargePointsUnknownEntity(ChargeStationEntity):
         """Update from rest response."""
         self.update_state(response["unknownStateChargePoints"])
 
+    @property
+    def icon(self) -> str | None:
+        """Icon of the entity, based on time."""
+        return "mdi:ev-station"
+
 
 class ChargePointCountEntity(ChargeStationEntity):
     """ChargePointCountEntity implementation."""
@@ -162,6 +202,7 @@ class ChargePointCountEntity(ChargeStationEntity):
     def __init__(self, hass: HomeAssistant, station: ChargeStation) -> None:
         """Initialize."""
         super().__init__(hass, station)
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_name = f"{station.name} Total Charge Points"
         self._attr_unique_id = Utils.generate_entity_id(
             f"{station.unique_id}_total_charge_points"
@@ -172,6 +213,11 @@ class ChargePointCountEntity(ChargeStationEntity):
         """Update from rest response."""
         self.update_state(response["numberOfChargePoints"])
 
+    @property
+    def icon(self) -> str | None:
+        """Icon of the entity, based on time."""
+        return "mdi:ev-station"
+
 
 class ChargePointsAvailableEntity(ChargeStationEntity):
     """ChargePointsAvailableEntity implementation."""
@@ -179,6 +225,7 @@ class ChargePointsAvailableEntity(ChargeStationEntity):
     def __init__(self, hass: HomeAssistant, station: ChargeStation) -> None:
         """Initialize."""
         super().__init__(hass, station)
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_name = f"{station.name} Available Charge Points"
         self._attr_unique_id = Utils.generate_entity_id(
             f"{station.unique_id}_available_charge_points"
@@ -188,3 +235,8 @@ class ChargePointsAvailableEntity(ChargeStationEntity):
     def update_from_response(self, response):
         """Update from rest response."""
         self.update_state(response["availableChargePoints"])
+
+    @property
+    def icon(self) -> str | None:
+        """Icon of the entity, based on time."""
+        return "mdi:ev-station"
