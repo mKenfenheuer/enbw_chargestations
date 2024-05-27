@@ -15,6 +15,11 @@ from .utils import Utils
 
 _LOGGER = logging.getLogger(__name__)
 
+ATTR_CABLE_ATTACHED = "cableAttached"
+ATTR_PLUG_TYPE_NAME = "plugTypeName"
+ATTR_MAX_POWER_IN_KW = "maxPowerInKw"
+ATTR_EVESE_ID = "evseId"
+
 
 class ChargeStation:
     """Implementation for charge stations."""
@@ -110,9 +115,14 @@ class ChargeStationEntity(SensorEntity):
         """Return entity specific state attributes."""
         return self._attributes
 
-    def update_attributes(self, attributes: dict[str, Any]):
+    def update_attributes(self, chargePoint):
         """Update attributes."""
-        self._attributes = attributes
+        """  self._attributes[ATTR_DAY] = self._departure["day"] """
+        """self._attributes = attributes"""
+        self._attributes[ATTR_CABLE_ATTACHED] =  chargePoint["connectors"][0]["cableAttached"]
+        self._attributes[ATTR_PLUG_TYPE_NAME] =  chargePoint["connectors"][0]["plugTypeName"]
+        self._attributes[ATTR_MAX_POWER_IN_KW] =  chargePoint["connectors"][0]["maxPowerInKw"]
+        self._attributes[ATTR_EVESE_ID] =  chargePoint["evseId"]
 
 
 class ChargePointEntity(ChargeStationEntity):
@@ -137,7 +147,11 @@ class ChargePointEntity(ChargeStationEntity):
             return
         state = state[0]
         self.update_state(state["status"])
-        self.update_attributes({"plugTypeName": state["connectors"][0]["plugTypeName"]})
+        self.update_attributes(state)
+        """self.update_attributes({"evseId": state["evseId"]})"""
+        """self.update_attributes({"plugTypeName": state["connectors"][0]["plugTypeName"]})"""
+        """self.update_attributes({"MaxPowerInKw": state["connectors"][0]["MaxPowerInKw"]})"""
+        """self.update_attributes({"cableAttached": state["connectors"][0]["cableAttached"]})"""
 
     @property
     def icon(self) -> str | None:
