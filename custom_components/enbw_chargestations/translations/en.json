@@ -34,5 +34,21 @@
                 "title": "Add EnBw Charge station"
             }
         }
+    },
+    "entity": {
+        "sensor": {
+            "charge_point":{
+                "state": {
+                "OCCUPIED": "Occupied",
+                "AVAILABLE": "Available"
+                }
+            },
+            "charge_station":{
+                "state": {
+                "OCCUPIED": "Occupied",
+                "AVAILABLE": "Available"
+                }
+            }
+    }
     }
 }

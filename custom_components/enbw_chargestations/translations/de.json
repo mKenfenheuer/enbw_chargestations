@@ -39,16 +39,17 @@
         "sensor": {
             "charge_point":{
                 "state": {
-                "OCCUPIED": "Occupied",
-                "AVAILABLE": "Available"
+                "OCCUPIED": "Belegt",
+                "AVAILABLE": "Frei"
                 }
             },
             "charge_station":{
                 "state": {
-                "OCCUPIED": "Occupied",
-                "AVAILABLE": "Available"
+                "OCCUPIED": "Außer Betrieb",
+                "AVAILABLE": "Verfügbar"
                 }
             }
     }
     }
+
 }
