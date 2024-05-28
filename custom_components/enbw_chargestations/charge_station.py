@@ -131,9 +131,6 @@ class ChargeStationEntity(SensorEntity):
         for kvp in attributes:
             self._attributes[kvp] = attributes[kvp]
 
-    @property
-    def translation_key(self):
-        return "charge_station"
 
 
 
@@ -260,6 +257,11 @@ class ChargeStationStateEntity(ChargeStationEntity):
             }
         )
 
+    @property
+    def translation_key(self):
+        return "charge_station"
+
+    
     @property
     def icon(self) -> str | None:
         """Icon of the entity, based on time."""
