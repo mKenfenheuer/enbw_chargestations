@@ -175,6 +175,10 @@ class ChargePointEntity(ChargeStationEntity):
         iconcolor = "primary"
         if state["status"] == "OCCUPIED":
             iconcolor = "gold"
+        elif state["status"] == "AVAILABLE":
+            iconcolor = "green"
+        else:
+            iconcolor = "red"
 
         self.update_attributes(
             {
