@@ -45,7 +45,7 @@
             },
             "charge_station":{
                 "state": {
-                "OCCUPIED": "Außer Betrieb",
+                "Unavailable": "Belegt",
                 "Available": "Verfügbar"
                 }
             }
