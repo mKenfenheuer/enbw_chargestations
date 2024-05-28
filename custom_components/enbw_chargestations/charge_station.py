@@ -131,6 +131,11 @@ class ChargeStationEntity(SensorEntity):
         for kvp in attributes:
             self._attributes[kvp] = attributes[kvp]
 
+    @property
+    def translation_key(self):
+        return "charge_station"
+
+
 
 class ChargePointEntity(ChargeStationEntity):
     """ChargePointEntity implementation."""
@@ -191,6 +196,11 @@ class ChargePointEntity(ChargeStationEntity):
                 ),
             }
         )
+
+    @property
+    def translation_key(self):
+        return "charge_point"
+
 
     @property
     def icon(self) -> str | None:
