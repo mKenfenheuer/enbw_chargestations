@@ -22,6 +22,7 @@ from .const import (
     ATTR_PLUG_TYPE_NAME,
     ATTR_TOTAL_CHARGE_POINTS,
     ATTR_UPDATED_AT,
+    ATTR_ICON_COLOR, 
     DOMAIN,
 )
 from .utils import Utils
@@ -169,6 +170,9 @@ class ChargePointEntity(ChargeStationEntity):
             plugTypePower[typeName] = max(
                 connector["maxPowerInKw"] for connector in connectors
             )
+        iconcolor = "primary"
+        if state["status"] == "OCCUPIED":
+            iconcolor = "gold"
 
         self.update_attributes(
             {
@@ -180,6 +184,7 @@ class ChargePointEntity(ChargeStationEntity):
                 ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW: plugTypePower,
                 ATTR_ADDRESS: response["shortAddress"],
                 ATTR_EVSE_ID: state["evseId"],
+                ATTR_ICON_COLOR: iconcolor, 
                 ATTR_UPDATED_AT: datetime.fromtimestamp(
                     self.station.updated_at,
                     tz=timezone.utc,  # noqa: UP017
