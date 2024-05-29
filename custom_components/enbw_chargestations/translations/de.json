@@ -47,7 +47,7 @@
                     "state": {
                         "true": "vorhanden",
                         "false": "nicht vorhanden"
-                      }
+                    }
                     },
                     "plugTypeName": { "name": "Steckertyp" },
                     "availableChargePoints": { "name": "verfügbare Ladepunkte" },
@@ -71,7 +71,7 @@
                     "state": {
                         "true": "vorhanden",
                         "false": "nicht vorhanden"
-                      }
+                    }
                     },
                     "plugTypeName": { "name": "Steckertyp" },
                     "availableChargePoints": { "name": "verfügbare Ladepunkte" },
