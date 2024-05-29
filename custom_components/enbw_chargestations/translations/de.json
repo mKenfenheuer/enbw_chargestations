@@ -41,7 +41,24 @@
                 "state": {
                 "OCCUPIED": "Belegt",
                 "AVAILABLE": "Frei"
+                },
+                "state_attributes": {
+                    "cableAttached": { "name": "Ladekabel vorhanden",
+                    "state": {
+                        "true": "vorhanden",
+                        "false": "nicht vorhanden"
+                      }
+                    },
+                    "plugTypeName": { "name": "Steckertyp" },
+                    "availableChargePoints": { "name": "verfügbare Ladepunkte" },
+                    "totalChargePoints": { "name": "Anzahl Ladepunkte" },
+                    "updatedAt": { "name": "letzte Aktualisierung" },
+                    "evseId": { "name": "evseId" },
+                    "address": { "name": "Adresse" },
+                    "maxPowerInKwPerPlugType": { "name": "max Ladeleistung" },
+                    "maxPowerInKw": { "name": "Ladeleistung" }
                 }
+
             },
             "charge_station":{
                 "state": {
@@ -56,7 +73,14 @@
                         "false": "nicht vorhanden"
                       }
                     },
-                    "plugTypeName": { "name": "Steckertyp" }
+                    "plugTypeName": { "name": "Steckertyp" },
+                    "availableChargePoints": { "name": "verfügbare Ladepunkte" },
+                    "totalChargePoints": { "name": "Anzahl Ladepunkte" },
+                    "updatedAt": { "name": "letzte Aktualisierung" },
+                    "evseId": { "name": "evseId" },
+                    "address": { "name": "Adresse" },
+                    "maxPowerInKwPerPlugType": { "name": "max Ladeleistung" },
+                    "maxPowerInKw": { "name": "Ladeleistung" }
                 }
 
             }
