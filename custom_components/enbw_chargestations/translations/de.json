@@ -41,13 +41,48 @@
                 "state": {
                 "OCCUPIED": "Belegt",
                 "AVAILABLE": "Frei"
+                },
+                "state_attributes": {
+                    "cableAttached": { "name": "Ladekabel vorhanden",
+                    "state": {
+                        "true": "vorhanden",
+                        "false": "nicht vorhanden"
+                    }
+                    },
+                    "plugTypeName": { "name": "Steckertyp" },
+                    "availableChargePoints": { "name": "verfügbare Ladepunkte" },
+                    "totalChargePoints": { "name": "Anzahl Ladepunkte" },
+                    "updatedAt": { "name": "letzte Aktualisierung" },
+                    "evseId": { "name": "EVSE-ID" },
+                    "address": { "name": "Adresse" },
+                    "maxPowerInKwPerPlugType": { "name": "max Ladeleistung" },
+                    "maxPowerInKw": { "name": "Ladeleistung" }
                 }
+
             },
             "charge_station":{
                 "state": {
                 "Unavailable": "Belegt",
                 "Available": "Verfügbar"
+                },
+
+                "state_attributes": {
+                    "cableAttached": { "name": "Ladekabel vorhanden",
+                    "state": {
+                        "true": "vorhanden",
+                        "false": "nicht vorhanden"
+                    }
+                    },
+                    "plugTypeName": { "name": "Steckertyp" },
+                    "availableChargePoints": { "name": "verfügbare Ladepunkte" },
+                    "totalChargePoints": { "name": "Anzahl Ladepunkte" },
+                    "updatedAt": { "name": "letzte Aktualisierung" },
+                    "evseId": { "name": "EVSE-ID" },
+                    "address": { "name": "Adresse" },
+                    "maxPowerInKwPerPlugType": { "name": "max Ladeleistung" },
+                    "maxPowerInKw": { "name": "Ladeleistung" }
                 }
+
             }
     }
     }
