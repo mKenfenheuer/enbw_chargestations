@@ -53,7 +53,7 @@
                     "availableChargePoints": { "name": "verfügbare Ladepunkte" },
                     "totalChargePoints": { "name": "Anzahl Ladepunkte" },
                     "updatedAt": { "name": "letzte Aktualisierung" },
-                    "evseId": { "name": "evseId" },
+                    "evseId": { "name": "EVSE-ID" },
                     "address": { "name": "Adresse" },
                     "maxPowerInKwPerPlugType": { "name": "max Ladeleistung" },
                     "maxPowerInKw": { "name": "Ladeleistung" }
@@ -77,7 +77,7 @@
                     "availableChargePoints": { "name": "verfügbare Ladepunkte" },
                     "totalChargePoints": { "name": "Anzahl Ladepunkte" },
                     "updatedAt": { "name": "letzte Aktualisierung" },
-                    "evseId": { "name": "evseId" },
+                    "evseId": { "name": "EVSE-ID" },
                     "address": { "name": "Adresse" },
                     "maxPowerInKwPerPlugType": { "name": "max Ladeleistung" },
                     "maxPowerInKw": { "name": "Ladeleistung" }
