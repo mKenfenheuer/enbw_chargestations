@@ -47,7 +47,18 @@
                 "state": {
                 "Unavailable": "Belegt",
                 "Available": "Verfügbar"
+                },
+
+                "state_attributes": {
+                    "cableAttached": { "name": "Ladekabel vorhanden",
+                    "state": {
+                        "true": "vorhanden",
+                        "false": "nicht vorhanden"
+                      }
+                    },
+                    "plugTypeName": { "name": "Steckertyp" }
                 }
+
             }
     }
     }
