@@ -158,9 +158,10 @@ class ChargePointEntity(ChargeStationEntity):
         self.update_state(state["status"])
 
         plugTypeNames = [connector["plugTypeName"] for connector in state["connectors"]]
-        plugTypeCableAttached = {}
-        plugTypePower = {}
+        plugTypeCableAttached = [connector["plugTypeName"] for connector in state["connectors"]]
+        """plugTypePower = [connector["plugTypeName"] for connector in state["connectors"]]"""
 
+        """
         connectors = []
         for connector in state["connectors"]:
             connectors.append(connector)  # noqa: PERF402
@@ -172,6 +173,8 @@ class ChargePointEntity(ChargeStationEntity):
             plugTypePower[typeName] = max(
                 connector["maxPowerInKw"] for connector in connectors
             )
+        """
+
         iconcolor = "primary"
         if state["status"] == "OCCUPIED":
             iconcolor = "gold"
@@ -187,7 +190,7 @@ class ChargePointEntity(ChargeStationEntity):
                 ATTR_MAX_POWER_IN_KW: max(
                     connector["maxPowerInKw"] for connector in state["connectors"]
                 ),
-                ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW: plugTypePower,
+                """ ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW: plugTypePower, """
                 ATTR_ADDRESS: response["shortAddress"],
                 ATTR_EVSE_ID: state["evseId"],
                 ATTR_ICON_COLOR: iconcolor, 
