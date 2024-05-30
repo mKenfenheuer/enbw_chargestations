@@ -69,10 +69,8 @@
                 "state_attributes": {
                     "cableAttached": { "name": "Ladekabel vorhanden",
                     "state": {
-                        "_": {
                         "true": "vorhanden",
                         "false": "nicht vorhanden"
-                        }
                     }
                     },
                     "plugTypeName": { "name": "Steckertyp" },
