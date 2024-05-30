@@ -56,7 +56,7 @@
                     "evseId": { "name": "EVSE-ID" },
                     "address": { "name": "Adresse" },
                     "maxPowerInKwPerPlugType": { "name": "max Ladeleistung" },
-                    "maxPowerInKw": { "name": "Ladeleistung" }
+                    "maxPowerInKw": { "name": "Ladeleistung kW" }
                 }
 
             },
@@ -80,7 +80,7 @@
                     "evseId": { "name": "EVSE-ID" },
                     "address": { "name": "Adresse" },
                     "maxPowerInKwPerPlugType": { "name": "max Ladeleistung" },
-                    "maxPowerInKw": { "name": "Ladeleistung" }
+                    "maxPowerInKw": { "name": "Ladeleistung kW" }
                 }
 
             }
