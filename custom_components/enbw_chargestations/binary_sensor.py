@@ -16,4 +16,4 @@ async def async_setup_entry(
 ) -> None:  # pylint disable=unused-argument
     """Set up EnBw Charge station via config entry."""
     station: ChargeStation = hass.data[DOMAIN][config_entry.entry_id]
-    async_add_entities(station.sensors)
+    async_add_entities(station.binary_sensors)

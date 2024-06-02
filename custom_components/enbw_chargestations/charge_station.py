@@ -2,13 +2,13 @@
 
 from abc import abstractmethod
 from datetime import datetime, timezone
-from itertools import chain
 import logging
 from time import time
 from typing import Any, override
 
 import requests
 
+from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.core import HomeAssistant
 
@@ -17,12 +17,12 @@ from .const import (
     ATTR_AVAILABLE_CHARGE_POINTS,
     ATTR_CABLE_ATTACHED,
     ATTR_EVSE_ID,
+    ATTR_ICON_COLOR,
     ATTR_MAX_POWER_IN_KW,
     ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW,
     ATTR_PLUG_TYPE_NAME,
     ATTR_TOTAL_CHARGE_POINTS,
     ATTR_UPDATED_AT,
-    ATTR_ICON_COLOR, 
     DOMAIN,
 )
 from .utils import Utils
@@ -42,7 +42,8 @@ class ChargeStation:
         self.station_number: str = station_number
         self.api_key: str = api_key
         self.updated_at: float | None = None
-        self.entities: list[ChargeStationEntity] = []
+        self.sensors: list[ChargeStationSensorEntity] = []
+        self.binary_sensors: list[ChargeStationBinarySensorEntity] = []
         self.unique_id: str = f"enbw_station_{station_number}"
         self.updated_at: float = 0
 
@@ -51,7 +52,6 @@ class ChargeStation:
         if self.updated_at > time() - 60:
             return
         self.updated_at = time()
-        _LOGGER.info("updating from rest api.")
         try:
             response = requests.get(
                 f"https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations/{self.station_number}",
@@ -63,30 +63,33 @@ class ChargeStation:
                 },
                 timeout=1,
             ).json()
-            if len(self.entities) == 0:
+            if len(self.sensors) + len(self.binary_sensors) == 0:
                 self.create_entities(response)
-            for i in range(len(self.entities)):
-                entity: ChargePointEntity = self.entities[i]
-                entity.update_from_response(response)
+            for sensor in self.sensors:
+                sensor.update_from_response(response)
+            for binary_sensor in self.binary_sensors:
+                binary_sensor.update_from_response(response)
 
         except Exception as ex:  # pylint: disable=broad-except  # noqa: BLE001
-            _LOGGER.exception(ex)
+            _LOGGER.exception(ex)  # noqa: TRY401
             return False
         return True
 
     def create_entities(self, response):
         """Create and add entities to internal register."""
-        self.entities.append(ChargeStationStateEntity(self.hass, self))
-        self.entities.append(ChargePointCountEntity(self.hass, self))
-        self.entities.append(ChargePointsAvailableEntity(self.hass, self))
-        self.entities.append(ChargePointsUnknownEntity(self.hass, self))
+        self.binary_sensors.append(ChargeStationStateBinarySensor(self.hass, self))
+        self.sensors.append(ChargePointCountSensor(self.hass, self))
+        self.sensors.append(ChargePointsAvailableSensor(self.hass, self))
+        self.sensors.append(ChargePointsUnknownSensor(self.hass, self))
         for i in range(response["numberOfChargePoints"]):
             point_id = response["chargePoints"][i]["evseId"]
-            self.entities.append(ChargePointEntity(self.hass, self, point_id, i + 1))
+            self.binary_sensors.append(
+                ChargePointBinarySensor(self.hass, self, point_id, i + 1)
+            )
 
 
-class ChargeStationEntity(SensorEntity):
-    """ChargeStationEntity implementation."""
+class ChargeStationSensorEntity(SensorEntity):
+    """ChargeStationSensorEntity implementation."""
 
     def __init__(self, hass: HomeAssistant, station: ChargeStation) -> None:
         """Initialize."""
@@ -132,10 +135,55 @@ class ChargeStationEntity(SensorEntity):
             self._attributes[kvp] = attributes[kvp]
 
 
+class ChargeStationBinarySensorEntity(BinarySensorEntity):
+    """ChargeStationBinarySensorEntity implementation."""
+
+    def __init__(self, hass: HomeAssistant, station: ChargeStation) -> None:
+        """Initialize."""
+        self.hass: HomeAssistant = hass
+        self.station: ChargeStation = station
+        self._attr_is_on = False
+        self._attributes: dict[str, Any] = {}
+
+    @abstractmethod
+    def update_from_response(self, response):
+        """Update from rest response."""
+
+    def update(self):
+        """Update complete station."""
+        self.station.update()
+
+    def update_state(self, state: bool):
+        """Update state."""
+        self._attr_is_on = state
+
+    @property
+    def device_info(self):
+        """Device info."""
+        return {
+            "identifiers": {
+                (
+                    DOMAIN,
+                    f"enbw_station_{Utils.generate_entity_id(self.station.station_number)}",
+                )
+            },
+            "name": self.station.name,
+            "manufacturer": "EnBW Energie Baden-Württemberg",
+        }
+
+    @property
+    def extra_state_attributes(self):
+        """Return entity specific state attributes."""
+        return self._attributes
+
+    def update_attributes(self, attributes: dict[str, Any]):
+        """Update attributes."""
+        for kvp in attributes:
+            self._attributes[kvp] = attributes[kvp]
 
 
-class ChargePointEntity(ChargeStationEntity):
-    """ChargePointEntity implementation."""
+class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
+    """ChargePointBinarySensor implementation."""
 
     def __init__(
         self, hass: HomeAssistant, station: ChargeStation, point_id: str, index: int
@@ -155,25 +203,13 @@ class ChargePointEntity(ChargeStationEntity):
         if len(state) == 0:
             return
         state = state[0]
-        self.update_state(state["status"])
+        self.update_state(state["status"] != "AVAILABLE")
 
         plugTypeNames = [connector["plugTypeName"] for connector in state["connectors"]]
-        plugTypeCableAttached = [connector["cableAttached"] for connector in state["connectors"]]
+        plugTypeCableAttached = [
+            connector["cableAttached"] for connector in state["connectors"]
+        ]
         plugTypePower = [connector["maxPowerInKw"] for connector in state["connectors"]]
-
-        """
-        connectors = []
-        for connector in state["connectors"]:
-            connectors.append(connector)  # noqa: PERF402
-
-        for typeName in plugTypeNames:
-            plugTypeCableAttached[typeName] = any(
-                connector["cableAttached"] for connector in connectors
-            )
-            plugTypePower[typeName] = max(
-                connector["maxPowerInKw"] for connector in connectors
-            )
-        """
 
         iconcolor = "primary"
         if state["status"] == "OCCUPIED":
@@ -187,10 +223,10 @@ class ChargePointEntity(ChargeStationEntity):
             {
                 ATTR_CABLE_ATTACHED: plugTypeCableAttached,
                 ATTR_PLUG_TYPE_NAME: plugTypeNames,
-                ATTR_MAX_POWER_IN_KW: plugTypePower, 
+                ATTR_MAX_POWER_IN_KW: plugTypePower,
                 ATTR_ADDRESS: response["shortAddress"],
                 ATTR_EVSE_ID: state["evseId"],
-                ATTR_ICON_COLOR: iconcolor, 
+                ATTR_ICON_COLOR: iconcolor,
                 ATTR_UPDATED_AT: datetime.fromtimestamp(
                     self.station.updated_at,
                     tz=timezone.utc,  # noqa: UP017
@@ -200,20 +236,19 @@ class ChargePointEntity(ChargeStationEntity):
 
     @property
     def translation_key(self):
+        """Return Translation Key."""
         return "charge_point"
-
 
     @property
     def icon(self) -> str | None:
         """Icon of the entity, based on time."""
         if self.state == "AVAILABLE":
             return "mdi:car-electric-outline"
-        else:
-            return "mdi:car-electric"
+        return "mdi:car-electric"
 
 
-class ChargeStationStateEntity(ChargeStationEntity):
-    """ChargeStationStateEntity implementation."""
+class ChargeStationStateBinarySensor(ChargeStationBinarySensorEntity):
+    """ChargeStationStateBinarySensor implementation."""
 
     def __init__(self, hass: HomeAssistant, station: ChargeStation) -> None:
         """Initialize."""
@@ -224,9 +259,7 @@ class ChargeStationStateEntity(ChargeStationEntity):
     @override
     def update_from_response(self, response):
         """Update from rest response."""
-        self.update_state(
-            "Available" if response["availableChargePoints"] > 0 else "Unavailable"
-        )
+        self.update_state(response["availableChargePoints"] > 0)
 
         plugTypeNames = response["plugTypeNames"]
         plugTypeCableAttached = {}
@@ -263,20 +296,19 @@ class ChargeStationStateEntity(ChargeStationEntity):
 
     @property
     def translation_key(self):
+        """Return Translation Key."""
         return "charge_station"
 
-    
     @property
     def icon(self) -> str | None:
         """Icon of the entity, based on time."""
         if self.state == "Available":
             return "mdi:car-electric-outline"
-        else:
-            return "mdi:car-electric"
+        return "mdi:car-electric"
 
 
-class ChargePointsUnknownEntity(ChargeStationEntity):
-    """ChargePointsUnknownEntity implementation."""
+class ChargePointsUnknownSensor(ChargeStationSensorEntity):
+    """ChargePointsUnknownSensor implementation."""
 
     def __init__(self, hass: HomeAssistant, station: ChargeStation) -> None:
         """Initialize."""
@@ -298,8 +330,8 @@ class ChargePointsUnknownEntity(ChargeStationEntity):
         return "mdi:ev-station"
 
 
-class ChargePointCountEntity(ChargeStationEntity):
-    """ChargePointCountEntity implementation."""
+class ChargePointCountSensor(ChargeStationSensorEntity):
+    """ChargePointCountSensor implementation."""
 
     def __init__(self, hass: HomeAssistant, station: ChargeStation) -> None:
         """Initialize."""
@@ -321,8 +353,8 @@ class ChargePointCountEntity(ChargeStationEntity):
         return "mdi:ev-station"
 
 
-class ChargePointsAvailableEntity(ChargeStationEntity):
-    """ChargePointsAvailableEntity implementation."""
+class ChargePointsAvailableSensor(ChargeStationSensorEntity):
+    """ChargePointsAvailableSensor implementation."""
 
     def __init__(self, hass: HomeAssistant, station: ChargeStation) -> None:
         """Initialize."""

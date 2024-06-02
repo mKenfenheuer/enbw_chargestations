@@ -176,7 +176,6 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
             vol.Required(SEARCH_RADIUS, default=10): cv.positive_float,
             vol.Required(
                 API_KEY,
-                default="d4954e8b2e444fc89a89a463788c0a72",
             ): str,
         }
 
@@ -192,9 +191,7 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
             ): str,
             vol.Required(
                 API_KEY,
-                default=config_entry.data.get(
-                    API_KEY, "d4954e8b2e444fc89a89a463788c0a72"
-                ),
+                default=config_entry.data.get(API_KEY, ""),
             ): str,
         }
 
