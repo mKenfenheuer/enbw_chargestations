@@ -1,6 +1,4 @@
 # EnBw Charge Stations Custom Component for Home Assistant
-HACS integration to get 
-
 This custom component integrates the status of EnBw charge stations into Home Assistant, allowing users to search for hot charge stations in their area and track their status.
 
 ## Notice of Non-Affiliation and Disclaimer
@@ -16,6 +14,7 @@ The EnBw charge stations component for Home Assistant makes it possible to act b
 - Status of the charge point, including detailed information using attributes 
 - Sensor counter to display the number of total, free and unknown state charge points.
 - Easy integration using search feature
+
 
 ## Setup
 
@@ -44,5 +43,10 @@ The EnBw charge stations component for Home Assistant makes it possible to act b
 5. Optional: Provide a Station Number (may be needed if your desired station is not shown in the search list)
 6. If station number was not provided, select one from the list.
 7. Enjoy
+
+## Screenshots
+![image](screenshots/screen1.png)
+![image](screenshots/screen2.png)
+![image](screenshots/screen3.png)
 
 
