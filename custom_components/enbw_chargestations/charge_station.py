@@ -213,11 +213,14 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
         iconcolor = "primary"
         if state["status"] == "OCCUPIED":
             iconcolor = "gold"
+            self._attr_device_class = "battery_charging"
         elif state["status"] == "AVAILABLE":
             iconcolor = "green"
+            self._attr_device_class = None
         else:
             iconcolor = "red"
 
+        """ATTR_ICON_COLOR: iconcolor,"""
         self.update_attributes(
             {
                 ATTR_CABLE_ATTACHED: plugTypeCableAttached,
@@ -225,14 +228,12 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
                 ATTR_MAX_POWER_IN_KW: plugTypePower,
                 ATTR_ADDRESS: response["shortAddress"],
                 ATTR_EVSE_ID: state["evseId"],
-                ATTR_ICON_COLOR: iconcolor,
                 ATTR_UPDATED_AT: datetime.fromtimestamp(
                     self.station.updated_at,
                     tz=timezone.utc,  # noqa: UP017
                 ),
             }
         )
-
     @property
     def translation_key(self):
         """Return Translation Key."""
