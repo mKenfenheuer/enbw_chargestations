@@ -235,10 +235,7 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
             }
         )
 
-    def update_state(self, state: bool):
-        """Update state."""
-        self._attr_is_on = state
-    
+
     @property
     def translation_key(self):
         """Return Translation Key."""
