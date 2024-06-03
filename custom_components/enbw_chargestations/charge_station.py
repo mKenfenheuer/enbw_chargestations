@@ -6,7 +6,6 @@ import logging
 from time import time
 from typing import Any, override
 
-
 import requests
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
