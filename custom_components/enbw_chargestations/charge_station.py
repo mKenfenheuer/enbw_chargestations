@@ -96,6 +96,7 @@ class ChargeStationSensorEntity(SensorEntity):
         self.station: ChargeStation = station
         self._state: str | None = None
         self._attributes: dict[str, Any] = {}
+        self._attr_icon: str | None = None
 
     @abstractmethod
     def update_from_response(self, response):
@@ -132,6 +133,15 @@ class ChargeStationSensorEntity(SensorEntity):
         """Update attributes."""
         for kvp in attributes:
             self._attributes[kvp] = attributes[kvp]
+
+    @property
+    def icon(self) -> str | None:
+        """Returns icon."""
+        return self._attr_icon
+
+    def update_icon(self, icon: str | None):
+        """Updates icon."""
+        self._attr_icon = icon
 
 
 class ChargeStationBinarySensorEntity(BinarySensorEntity):
@@ -180,10 +190,19 @@ class ChargeStationBinarySensorEntity(BinarySensorEntity):
         for kvp in attributes:
             self._attributes[kvp] = attributes[kvp]
 
+    @property
+    def icon(self) -> str | None:
+        """Returns icon."""
+        return self._attr_icon
+
+    def update_icon(self, icon: str | None):
+        """Updates icon."""
+        self._attr_icon = icon
+
 
 class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
     """ChargePointBinarySensor implementation."""
-    
+
     def __init__(
         self, hass: HomeAssistant, station: ChargeStation, point_id: str, index: int
     ) -> None:
@@ -210,14 +229,6 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
         ]
         plugTypePower = [connector["maxPowerInKw"] for connector in state["connectors"]]
 
-        iconcolor = "primary"
-        if state["status"] == "OCCUPIED":
-            iconcolor = "gold"
-        elif state["status"] == "AVAILABLE":
-            iconcolor = "green"
-        else:
-            iconcolor = "red"
-
         self.update_attributes(
             {
                 ATTR_CABLE_ATTACHED: plugTypeCableAttached,
@@ -225,7 +236,6 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
                 ATTR_MAX_POWER_IN_KW: plugTypePower,
                 ATTR_ADDRESS: response["shortAddress"],
                 ATTR_EVSE_ID: state["evseId"],
-                ATTR_ICON_COLOR: iconcolor,
                 ATTR_UPDATED_AT: datetime.fromtimestamp(
                     self.station.updated_at,
                     tz=timezone.utc,  # noqa: UP017
@@ -233,17 +243,14 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
             }
         )
 
+        if self.is_on:
+            self.update_icon("mdi:car-electric-outline")
+        self.update_icon("mdi:car-electric")
+
     @property
     def translation_key(self):
         """Return Translation Key."""
         return "charge_point"
-
-    @property
-    def icon(self) -> str | None:
-        """Icon of the entity, based on time."""
-        if self.state == "AVAILABLE":
-            return "mdi:car-electric-outline"
-        return "mdi:car-electric"
 
 
 class ChargeStationStateBinarySensor(ChargeStationBinarySensorEntity):
@@ -293,17 +300,14 @@ class ChargeStationStateBinarySensor(ChargeStationBinarySensorEntity):
             }
         )
 
+        if self.is_on:
+            self.update_icon("mdi:car-electric-outline")
+        self.update_icon("mdi:car-electric")
+
     @property
     def translation_key(self):
         """Return Translation Key."""
         return "charge_station"
-
-    @property
-    def icon(self) -> str | None:
-        """Icon of the entity, based on time."""
-        if self.state == "Available":
-            return "mdi:car-electric-outline"
-        return "mdi:car-electric"
 
 
 class ChargePointsUnknownSensor(ChargeStationSensorEntity):
@@ -317,16 +321,12 @@ class ChargePointsUnknownSensor(ChargeStationSensorEntity):
         self._attr_unique_id = Utils.generate_entity_id(
             f"{station.unique_id}_unknown_state_charge_points"
         )
+        self.update_icon("mdi:ev-station")
 
     @override
     def update_from_response(self, response):
         """Update from rest response."""
         self.update_state(response["unknownStateChargePoints"])
-
-    @property
-    def icon(self) -> str | None:
-        """Icon of the entity, based on time."""
-        return "mdi:ev-station"
 
 
 class ChargePointCountSensor(ChargeStationSensorEntity):
@@ -340,16 +340,12 @@ class ChargePointCountSensor(ChargeStationSensorEntity):
         self._attr_unique_id = Utils.generate_entity_id(
             f"{station.unique_id}_total_charge_points"
         )
+        self.update_icon("mdi:ev-station")
 
     @override
     def update_from_response(self, response):
         """Update from rest response."""
         self.update_state(response["numberOfChargePoints"])
-
-    @property
-    def icon(self) -> str | None:
-        """Icon of the entity, based on time."""
-        return "mdi:ev-station"
 
 
 class ChargePointsAvailableSensor(ChargeStationSensorEntity):
@@ -363,13 +359,9 @@ class ChargePointsAvailableSensor(ChargeStationSensorEntity):
         self._attr_unique_id = Utils.generate_entity_id(
             f"{station.unique_id}_available_charge_points"
         )
+        self.update_icon("mdi:ev-station")
 
     @override
     def update_from_response(self, response):
         """Update from rest response."""
         self.update_state(response["availableChargePoints"])
-
-    @property
-    def icon(self) -> str | None:
-        """Icon of the entity, based on time."""
-        return "mdi:ev-station"
