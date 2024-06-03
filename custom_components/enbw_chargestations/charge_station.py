@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 import logging
 from time import time
 from typing import Any, override
-
 import requests
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
@@ -28,7 +27,6 @@ from .const import (
 from .utils import Utils
 
 _LOGGER = logging.getLogger(__name__)
-
 
 class ChargeStation:
     """Implementation for charge stations."""
