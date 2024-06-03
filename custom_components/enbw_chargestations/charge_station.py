@@ -276,7 +276,7 @@ class ChargeStationBinarySensorEntity(BinarySensorEntity):
 class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
     """ChargePointBinarySensor implementation."""
     
-    _attr_device_class: BinarySensorDeviceClass | BATTERY_CHARGING
+    """_attr_device_class: BinarySensorDeviceClass | BATTERY_CHARGING"""
     
     def __init__(
         self, hass: HomeAssistant, station: ChargeStation, point_id: str, index: int
