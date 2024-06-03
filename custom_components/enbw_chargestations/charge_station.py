@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import logging
 from time import time
 from typing import Any, override
+
 import requests
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
@@ -182,7 +183,7 @@ class ChargeStationBinarySensorEntity(BinarySensorEntity):
 
 class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
     """ChargePointBinarySensor implementation."""
-
+    
     def __init__(
         self, hass: HomeAssistant, station: ChargeStation, point_id: str, index: int
     ) -> None:
