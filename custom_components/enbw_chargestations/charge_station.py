@@ -245,7 +245,8 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
 
         if self.is_on:
             self.update_icon("mdi:car-electric-outline")
-        self.update_icon("mdi:car-electric")
+        else:
+            self.update_icon("mdi:car-electric")
 
     @property
     def translation_key(self):
@@ -302,7 +303,8 @@ class ChargeStationStateBinarySensor(ChargeStationBinarySensorEntity):
 
         if self.is_on:
             self.update_icon("mdi:car-electric-outline")
-        self.update_icon("mdi:car-electric")
+        else:
+            self.update_icon("mdi:car-electric")
 
     @property
     def translation_key(self):
