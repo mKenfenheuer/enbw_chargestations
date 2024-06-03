@@ -21,17 +21,21 @@ async def async_remove_config_entry_device(
     """Remove a config entry from a device."""
     return True
 
+async def ensure_station_populated(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+    if not DOMAIN in hass.data:
+        hass.data[DOMAIN] = {}
+    if not config_entry.entry_id in hass.data[DOMAIN]:
+        hass.data[DOMAIN][config_entry.entry_id] = ChargeStation(
+            hass,
+            config_entry.data.get(NAME),
+            config_entry.data.get(STATION_NUMBER),
+            config_entry.data.get(API_KEY),
+        )
+        await hass.async_add_executor_job(hass.data[DOMAIN][config_entry.entry_id].update)
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Set up entities."""
-    hass.data[DOMAIN] = {}
-    hass.data[DOMAIN][config_entry.entry_id] = ChargeStation(
-        hass,
-        config_entry.data.get(NAME),
-        config_entry.data.get(STATION_NUMBER),
-        config_entry.data.get(API_KEY),
-    )
-    await hass.async_add_executor_job(hass.data[DOMAIN][config_entry.entry_id].update)
+    await ensure_station_populated(hass, config_entry)
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
     return True
 

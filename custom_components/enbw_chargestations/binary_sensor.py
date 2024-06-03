@@ -7,7 +7,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .charge_station import ChargeStation
 
 from .const import API_KEY, DOMAIN, NAME, STATION_NUMBER
-
+from . import ensure_station_populated
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -15,5 +15,6 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:  # pylint disable=unused-argument
     """Set up EnBw Charge station via config entry."""
+    await ensure_station_populated(hass, config_entry)
     station: ChargeStation = hass.data[DOMAIN][config_entry.entry_id]
     async_add_entities(station.binary_sensors)
