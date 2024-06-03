@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import logging
 from time import time
 from typing import Any, override
+from enum import StrEnum
 
 import requests
 
