@@ -29,6 +29,7 @@ from .utils import Utils
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class ChargeStation:
     """Implementation for charge stations."""
 
