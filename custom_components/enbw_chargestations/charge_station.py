@@ -213,10 +213,8 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
         iconcolor = "primary"
         if state["status"] == "OCCUPIED":
             iconcolor = "gold"
-            self._attr_device_class = "battery_charging"
         elif state["status"] == "AVAILABLE":
             iconcolor = "green"
-            self._attr_device_class = None
         else:
             iconcolor = "red"
 
