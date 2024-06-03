@@ -234,6 +234,11 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
                 ),
             }
         )
+
+    def update_state(self, state: bool):
+        """Update state."""
+        self._attr_is_on = state
+    
     @property
     def translation_key(self):
         """Return Translation Key."""
@@ -242,9 +247,9 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
     @property
     def icon(self) -> str | None:
         """Icon of the entity, based on time."""
-        if self.state == "AVAILABLE":
+        if self.is_on == True:
             return "mdi:car-electric-outline"
-        return "mdi:car-electric"
+        return "mdi:ev-plug-type2"
 
 
 class ChargeStationStateBinarySensor(ChargeStationBinarySensorEntity):
