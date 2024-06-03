@@ -218,6 +218,7 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
         else:
             iconcolor = "red"
 
+        """ATTR_ICON_COLOR: iconcolor,"""
         self.update_attributes(
             {
                 ATTR_CABLE_ATTACHED: plugTypeCableAttached,
@@ -225,7 +226,6 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
                 ATTR_MAX_POWER_IN_KW: plugTypePower,
                 ATTR_ADDRESS: response["shortAddress"],
                 ATTR_EVSE_ID: state["evseId"],
-                ATTR_ICON_COLOR: iconcolor,
                 ATTR_UPDATED_AT: datetime.fromtimestamp(
                     self.station.updated_at,
                     tz=timezone.utc,  # noqa: UP017
@@ -243,7 +243,7 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
         """Icon of the entity, based on time."""
         if self.state == "AVAILABLE":
             return "mdi:car-electric-outline"
-        return "mdi:car-electric"
+        return "mdi:ev-plug-type2"
 
 
 class ChargeStationStateBinarySensor(ChargeStationBinarySensorEntity):

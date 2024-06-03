@@ -39,7 +39,7 @@
         "binary_sensor": {
             "charge_point":{
                 "state": {
-                
+                "on": "Belegt",                
                 "off": "Frei"
                 },
             "state_attributes": {
