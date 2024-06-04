@@ -252,7 +252,7 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
                 self.update_icon("mdi:ev-plug-ccs2")
             elif plugTypeNames == "CHAdeMO":
                 self.update_icon("mdi:ev-plug-chademo")
-            else
+            else:
                 self.update_icon("mdi:car-electric")
 
     @property
