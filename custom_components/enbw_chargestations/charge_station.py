@@ -248,7 +248,7 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
             self.update_icon("mdi:car-electric-outline")
         elif len(plugTypeNames) > 1 :
             self.update_icon("mdi:car-electric")
-        elif plugTypeNames[0] == "Type 2":
+        elif plugTypeNames[0] == "Typ 2" or plugTypeNames[0] == "Type 2":
             self.update_icon("mdi:ev-plug-type2")
         elif plugTypeNames[0] == "CCS (Typ 2)":
             self.update_icon("mdi:ev-plug-ccs2")
