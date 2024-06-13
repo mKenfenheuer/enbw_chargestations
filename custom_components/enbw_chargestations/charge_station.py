@@ -49,7 +49,7 @@ class ChargeStation:
     def update(self):
         """Update from rest api."""
         if self.updated_at > time() - 60:
-            return
+            return None
         self.updated_at = time()
         try:
             response = requests.get(
@@ -140,7 +140,7 @@ class ChargeStationSensorEntity(SensorEntity):
         return self._attr_icon
 
     def update_icon(self, icon: str | None):
-        """Updates icon."""
+        """Update icon."""
         self._attr_icon = icon
 
 
@@ -196,7 +196,7 @@ class ChargeStationBinarySensorEntity(BinarySensorEntity):
         return self._attr_icon
 
     def update_icon(self, icon: str | None):
-        """Updates icon."""
+        """Update icon."""
         self._attr_icon = icon
 
 
@@ -245,15 +245,16 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
 
         if self.is_on:
             self.update_icon("mdi:car-electric-outline")
+        elif len(plugTypeNames) > 1 :
+            self.update_icon("mdi:car-electric")
+        elif plugTypeNames[0] == "Type 2":
+            self.update_icon("mdi:ev-plug-type2")
+        elif plugTypeNames[0] == "CCS (Typ 2)":
+            self.update_icon("mdi:ev-plug-ccs2")
+        elif plugTypeNames[0] == "CHAdeMO":
+            self.update_icon("mdi:ev-plug-chademo")
         else:
-            if plugTypeNames == "Type 2":
-                self.update_icon("mdi:ev-plug-type2")
-            elif plugTypeNames == "CCS (Typ 2)":
-                self.update_icon("mdi:ev-plug-ccs2")
-            elif plugTypeNames == "CHAdeMO":
-                self.update_icon("mdi:ev-plug-chademo")
-            else:
-                self.update_icon("mdi:car-electric")
+            self.update_icon("mdi:car-electric")
 
     @property
     def translation_key(self):

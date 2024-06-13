@@ -1,4 +1,4 @@
-"""Charge station sensor implementation"""
+"""Charge station sensor implementation."""
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry

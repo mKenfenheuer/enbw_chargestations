@@ -19,3 +19,4 @@ async def async_setup_entry(
     await ensure_station_populated(hass, config_entry)
     station: ChargeStation = hass.data[DOMAIN][config_entry.entry_id]
     async_add_entities(station.sensors)
+

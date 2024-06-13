@@ -1,4 +1,4 @@
-"""Constants for pi assistant component"""
+"""Constants for pi assistant component."""
 
 ATTR_CABLE_ATTACHED = "cableAttached"
 ATTR_PLUG_TYPE_NAME = "plugTypeName"
