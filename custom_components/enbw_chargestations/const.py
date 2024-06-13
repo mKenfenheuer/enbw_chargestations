@@ -1,10 +1,11 @@
-"""Constants for pi assistant component"""
+"""Constants for pi assistant component."""
 
 ATTR_CABLE_ATTACHED = "cableAttached"
 ATTR_PLUG_TYPE_NAME = "plugTypeName"
 ATTR_MAX_POWER_IN_KW = "maxPowerInKw"
 ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW = "maxPowerInKwPerPlugType"
 ATTR_EVSE_ID = "evseId"
+ATTR_STATION_ID = "stationid"
 ATTR_ADDRESS = "address"
 ATTR_UPDATED_AT = "updatedAt"
 ATTR_AVAILABLE_CHARGE_POINTS = "availableChargePoints"

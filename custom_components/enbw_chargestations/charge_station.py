@@ -20,6 +20,7 @@ from .const import (
     ATTR_MAX_POWER_IN_KW,
     ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW,
     ATTR_PLUG_TYPE_NAME,
+    ATTR_STATION_ID,
     ATTR_TOTAL_CHARGE_POINTS,
     ATTR_UPDATED_AT,
     DOMAIN,
@@ -49,7 +50,7 @@ class ChargeStation:
     def update(self):
         """Update from rest api."""
         if self.updated_at > time() - 60:
-            return
+            return None
         self.updated_at = time()
         try:
             response = requests.get(
@@ -140,7 +141,7 @@ class ChargeStationSensorEntity(SensorEntity):
         return self._attr_icon
 
     def update_icon(self, icon: str | None):
-        """Updates icon."""
+        """Update icon."""
         self._attr_icon = icon
 
 
@@ -196,7 +197,7 @@ class ChargeStationBinarySensorEntity(BinarySensorEntity):
         return self._attr_icon
 
     def update_icon(self, icon: str | None):
-        """Updates icon."""
+        """Update icon."""
         self._attr_icon = icon
 
 
@@ -236,6 +237,7 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
                 ATTR_MAX_POWER_IN_KW: plugTypePower,
                 ATTR_ADDRESS: response["shortAddress"],
                 ATTR_EVSE_ID: state["evseId"],
+                ATTR_STATION_ID: str(response["stationId"]),
                 ATTR_UPDATED_AT: datetime.fromtimestamp(
                     self.station.updated_at,
                     tz=timezone.utc,  # noqa: UP017
@@ -245,6 +247,14 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
 
         if self.is_on:
             self.update_icon("mdi:car-electric-outline")
+        elif len(plugTypeNames) > 1 :
+            self.update_icon("mdi:car-electric")
+        elif plugTypeNames[0] == "Typ 2" or plugTypeNames[0] == "Type 2":
+            self.update_icon("mdi:ev-plug-type2")
+        elif plugTypeNames[0] == "CCS (Typ 2)":
+            self.update_icon("mdi:ev-plug-ccs2")
+        elif plugTypeNames[0] == "CHAdeMO":
+            self.update_icon("mdi:ev-plug-chademo")
         else:
             self.update_icon("mdi:car-electric")
 
@@ -291,6 +301,7 @@ class ChargeStationStateBinarySensor(ChargeStationBinarySensorEntity):
                 ATTR_PLUG_TYPE_NAME: plugTypeNames,
                 ATTR_MAX_POWER_IN_KW: response["maxPowerInKw"],
                 ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW: plugTypePower,
+                ATTR_STATION_ID: str(response["stationId"]),
                 ATTR_ADDRESS: response["shortAddress"],
                 ATTR_AVAILABLE_CHARGE_POINTS: response["availableChargePoints"],
                 ATTR_TOTAL_CHARGE_POINTS: response["numberOfChargePoints"],

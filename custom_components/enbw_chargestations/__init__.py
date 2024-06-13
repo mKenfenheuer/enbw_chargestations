@@ -10,7 +10,7 @@ from homeassistant.helpers.device_registry import DeviceEntry
 from .charge_station import ChargeStation
 from .const import API_KEY, DOMAIN, NAME, STATION_NUMBER
 
-PLATFORMS: list[str] = [Platform.SENSOR, Platform.BINARY_SENSOR]
+PLATFORMS: list[str] = [Platform.BINARY_SENSOR , Platform.SENSOR ]
 
 
 async def async_remove_config_entry_device(
@@ -22,9 +22,9 @@ async def async_remove_config_entry_device(
     return True
 
 async def ensure_station_populated(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
-    if not DOMAIN in hass.data:
+    if  DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
-    if not config_entry.entry_id in hass.data[DOMAIN]:
+    if  config_entry.entry_id not in hass.data[DOMAIN]:
         hass.data[DOMAIN][config_entry.entry_id] = ChargeStation(
             hass,
             config_entry.data.get(NAME),
