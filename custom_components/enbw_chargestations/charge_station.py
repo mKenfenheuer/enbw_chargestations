@@ -237,6 +237,7 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
                 ATTR_MAX_POWER_IN_KW: plugTypePower,
                 ATTR_ADDRESS: response["shortAddress"],
                 ATTR_EVSE_ID: state["evseId"],
+                ATTR_STATION_ID: str(response["stationId"]),
                 ATTR_UPDATED_AT: datetime.fromtimestamp(
                     self.station.updated_at,
                     tz=timezone.utc,  # noqa: UP017
