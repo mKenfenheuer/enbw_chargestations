@@ -223,7 +223,7 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
         if len(state) == 0:
             return
         state = state[0]
-        self.update_state(state["status"] != "AVAILABLE")
+        self.update_state(state["status"] != "AVAILABLE" and state["status"] != "OUT_OF_SERVICE")
 
         plugTypeNames = [connector["plugTypeName"] for connector in state["connectors"]]
         plugTypeCableAttached = [
