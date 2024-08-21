@@ -23,6 +23,7 @@ from .const import (
     ATTR_STATION_ID,
     ATTR_TOTAL_CHARGE_POINTS,
     ATTR_UPDATED_AT,
+    ATTR_OUT_OF_SERVICE,
     DOMAIN,
 )
 from .utils import Utils
@@ -242,6 +243,7 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
                     self.station.updated_at,
                     tz=timezone.utc,  # noqa: UP017
                 ),
+                ATTR_OUT_OF_SERVICE: state["status"] == "OUT_OF_SERVICE"
             }
         )
 
