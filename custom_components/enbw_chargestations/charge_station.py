@@ -23,6 +23,7 @@ from .const import (
     ATTR_STATION_ID,
     ATTR_TOTAL_CHARGE_POINTS,
     ATTR_UPDATED_AT,
+    ATTR_OUT_OF_SERVICE,
     DOMAIN,
 )
 from .utils import Utils
