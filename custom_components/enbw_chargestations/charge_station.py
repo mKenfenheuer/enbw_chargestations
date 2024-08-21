@@ -242,6 +242,7 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
                     self.station.updated_at,
                     tz=timezone.utc,  # noqa: UP017
                 ),
+                ATTR_OUT_OF_SERVICE: state["status"] == "OUT_OF_SERVICE"
             }
         )
 
