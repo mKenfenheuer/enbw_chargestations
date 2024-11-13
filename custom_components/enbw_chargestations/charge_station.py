@@ -17,6 +17,8 @@ from .const import (
     ATTR_AVAILABLE_CHARGE_POINTS,
     ATTR_CABLE_ATTACHED,
     ATTR_EVSE_ID,
+    ATTR_LATITUDE,
+    ATTR_LONGITUDE,
     ATTR_MAX_POWER_IN_KW,
     ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW,
     ATTR_PLUG_TYPE_NAME,
@@ -380,3 +382,14 @@ class ChargePointsAvailableSensor(ChargeStationSensorEntity):
     def update_from_response(self, response):
         """Update from rest response."""
         self.update_state(response["availableChargePoints"])
+
+        self.update_attributes(
+            {
+                ATTR_LATITUDE: str(response["lat"]),
+                ATTR_LONGITUDE: str(response["lon"]),
+                ATTR_UPDATED_AT: datetime.fromtimestamp(
+                    self.station.updated_at,
+                    tz=timezone.utc,
+                ),
+            }
+        )
