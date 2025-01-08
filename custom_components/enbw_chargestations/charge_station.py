@@ -17,6 +17,7 @@ from .const import (
     ATTR_AVAILABLE_CHARGE_POINTS,
     ATTR_CABLE_ATTACHED,
     ATTR_EVSE_ID,
+    ATTR_STATE,
     ATTR_LATITUDE,
     ATTR_LONGITUDE,
     ATTR_MAX_POWER_IN_KW,
@@ -240,6 +241,7 @@ class ChargePointBinarySensor(ChargeStationBinarySensorEntity):
                 ATTR_MAX_POWER_IN_KW: plugTypePower,
                 ATTR_ADDRESS: response["shortAddress"],
                 ATTR_EVSE_ID: state["evseId"],
+                ATTR_STATE: str(state["status"]),
                 ATTR_STATION_ID: str(response["stationId"]),
                 ATTR_UPDATED_AT: datetime.fromtimestamp(
                     self.station.updated_at,
