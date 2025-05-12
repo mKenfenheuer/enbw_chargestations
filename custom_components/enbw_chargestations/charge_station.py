@@ -61,6 +61,7 @@ class ChargeStation:
                 f"https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations/{self.station_number}",
                 headers={
                     "User-Agent": "Home Assistant",
+                    "Accept": "application/json",
                     "Ocp-Apim-Subscription-Key": self.api_key,
                     "Origin": "https://www.enbw.com",
                     "Referer": "https://www.enbw.com/",
