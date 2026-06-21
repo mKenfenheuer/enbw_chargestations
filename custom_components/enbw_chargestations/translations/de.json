@@ -1,114 +1,101 @@
 {
     "config": {
-        "abort": {
-            "reconfigure_successful": "Re-configuration was successful"
-        },
-        "error": {},
         "step": {
             "user": {
+                "title": "EnBW-Ladestation hinzufügen",
+                "description": "Konfigurationsdaten angeben. Weitere Infos in der Dokumentation.",
                 "data": {
-                    "name": "Enter display name of the charge station",
-                    "station_number": "Enter station number obtained from map via developer tools.",
-                    "api_key": "Enter api key obtained from map via Ocp-Apim-Subscription-Key header via developer tools.",
-                    "latitude": "Enter longitude of location from wich you would like to search for charge stations.",
-                    "longitude": "Enter latitude of location from wich you would like to search for charge stations.",
-                    "search_radius": "Enter search radius in which you would like to search for charge stations."
+                    "name": "Anzeigename",
+                    "station_number": "Stationsnummer (optional)",
+                    "latitude": "Suchbreitengrad",
+                    "longitude": "Suchlängengrad",
+                    "search_radius": "Suchradius (km)",
+                    "api_key": "API-Schlüssel"
                 },
-                "description": "Provide configuration data. See documentation for further info.",
-                "title": "Add EnBw Charge station"
+                "data_description": {
+                    "name": "Der für diese Ladestation angezeigte Name.",
+                    "station_number": "Stationsnummer aus der EnBW-Karte über die Entwicklertools. Leer lassen, um Stationen in der Nähe zu suchen.",
+                    "latitude": "Breitengrad des Standorts, von dem aus Ladestationen gesucht werden.",
+                    "longitude": "Längengrad des Standorts, von dem aus Ladestationen gesucht werden.",
+                    "search_radius": "Suchradius in Kilometern für Ladestationen.",
+                    "api_key": "API-Schlüssel aus der EnBW-Karte über den Header Ocp-Apim-Subscription-Key in den Entwicklertools."
+                }
             },
             "search_station": {
+                "title": "Ladestation auswählen",
+                "description": "Wähle die hinzuzufügende Station aus der Liste unten aus.",
                 "data": {
                     "station_number": "Station"
-                },
-                "description": "Select station to import from below list.",
-                "title": "Add EnBw Charge station"
+                }
             },
             "reconfigure": {
+                "title": "EnBW-Ladestation neu konfigurieren",
+                "description": "Aktualisiere die Konfiguration dieser Ladestation.",
                 "data": {
-                    "name": "Enter display name of the charge station",
-                    "station_number": "Enter station number obtained from map via developer tools.",
-                    "api_key": "Enter api key obtained from map via Ocp-Apim-Subscription-Key header via developer tools."
-                },
-                "description": "Provide configuration data. See documentation for further info.",
-                "title": "Add EnBw Charge station"
+                    "name": "Anzeigename",
+                    "station_number": "Stationsnummer",
+                    "api_key": "API-Schlüssel"
+                }
+            },
+            "reauth_confirm": {
+                "title": "EnBW-Ladestation erneut authentifizieren",
+                "description": "Der API-Schlüssel wurde abgelehnt. Bitte gib einen neuen API-Schlüssel ein.",
+                "data": {
+                    "api_key": "API-Schlüssel"
+                }
             }
+        },
+        "error": {
+            "cannot_connect": "Verbindung zur EnBW-API fehlgeschlagen. Bitte erneut versuchen.",
+            "invalid_auth": "Ungültiger API-Schlüssel.",
+            "no_stations_found": "In der Nähe des angegebenen Standorts wurden keine Ladestationen gefunden."
+        },
+        "abort": {
+            "already_configured": "Diese Ladestation ist bereits konfiguriert.",
+            "reconfigure_successful": "Neukonfiguration war erfolgreich.",
+            "reauth_successful": "Erneute Authentifizierung war erfolgreich."
+        }
+    },
+    "exceptions": {
+        "cannot_connect": {
+            "message": "Verbindung zur EnBW-API fehlgeschlagen."
+        },
+        "invalid_auth": {
+            "message": "Der API-Schlüssel wurde von der EnBW-API abgelehnt."
         }
     },
     "entity": {
         "binary_sensor": {
-            "charge_point":{
+            "charge_station": {
+                "name": "Verfügbarkeit",
                 "state": {
-                "on": "Belegt",                
-                "off": "Frei"
-                },
-            "state_attributes": {
-                "cableAttached": { "name": "Ladekabel vorhanden",
-                "state": {
-                    "true": "vorhanden",
-                    "false": "nicht vorhanden"
+                    "off": "Belegt",
+                    "on": "Verfügbar"
                 }
-                },
-                "plugTypeName": { "name": "Steckertyp" },
-                "availableChargePoints": { "name": "verfügbare Ladepunkte" },
-                "totalChargePoints": { "name": "Anzahl Ladepunkte" },
-                "updatedAt": { "name": "letzte Aktualisierung" },
-                "evseId": { "name": "EVSE-ID" },
-                "address": { "name": "Adresse" },
-                "maxPowerInKwPerPlugType": { "name": "max Ladeleistung" },
-                "maxPowerInKw": { "name": "Ladeleistung kW" }
+            },
+            "charge_point": {
+                "name": "Ladepunkt {index}",
+                "state": {
+                    "off": "Frei",
+                    "on": "Belegt"
                 }
             }
         },
         "sensor": {
-            "charge_point":{
-                "state": {
-                "on": "Belegt",
-                "off": "Frei"
-                },
-                "state_attributes": {
-                    "cableAttached": { "name": "Ladekabel vorhanden",
-                    "state": {
-                        "true": "vorhanden",
-                        "false": "nicht vorhanden"
-                    }
-                    },
-                    "plugTypeName": { "name": "Steckertyp" },
-                    "availableChargePoints": { "name": "verfügbare Ladepunkte" },
-                    "totalChargePoints": { "name": "Anzahl Ladepunkte" },
-                    "updatedAt": { "name": "letzte Aktualisierung" },
-                    "evseId": { "name": "EVSE-ID" },
-                    "address": { "name": "Adresse" },
-                    "maxPowerInKwPerPlugType": { "name": "max Ladeleistung" },
-                    "maxPowerInKw": { "name": "Ladeleistung kW" }
-                }
-
+            "total_charge_points": {
+                "name": "Ladepunkte gesamt"
             },
-            "charge_station":{
-                "state": {
-                "Unavailable": "Belegt",
-                "Available": "Verfügbar"
-                },
-
-                "state_attributes": {
-                    "cableAttached": { "name": "Ladekabel vorhanden",
-                    "state": {
-                        "true": "vorhanden",
-                        "false": "nicht vorhanden"
-                    }
-                    },
-                    "plugTypeName": { "name": "Steckertyp" },
-                    "availableChargePoints": { "name": "verfügbare Ladepunkte" },
-                    "totalChargePoints": { "name": "Anzahl Ladepunkte" },
-                    "updatedAt": { "name": "letzte Aktualisierung" },
-                    "evseId": { "name": "EVSE-ID" },
-                    "address": { "name": "Adresse" },
-                    "maxPowerInKwPerPlugType": { "name": "max Ladeleistung" },
-                    "maxPowerInKw": { "name": "Ladeleistung kW" }
-                }
-
+            "available_charge_points": {
+                "name": "Verfügbare Ladepunkte"
+            },
+            "unknown_state_charge_points": {
+                "name": "Ladepunkte mit unbekanntem Status"
             }
+        },
+        "device_tracker": {
+            "location": {
+                "name": "Standort"
+            }
+        }
     }
-    }
-
 }

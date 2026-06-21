@@ -1,5 +1,18 @@
-"""Constants for pi assistant component."""
+"""Constants for the EnBW charge stations component."""
 
+DOMAIN = "enbw_chargestations"
+
+# Config entry keys
+STATION_NUMBER = "station_number"
+NAME = "name"
+LATITUDE = "latitude"
+LONGITUDE = "longitude"
+SEARCH_RADIUS = "search_radius"
+API_KEY = "api_key"
+
+DEG_PER_KM = 1 / 111
+
+# Extra state attribute keys
 ATTR_CABLE_ATTACHED = "cableAttached"
 ATTR_PLUG_TYPE_NAME = "plugTypeName"
 ATTR_MAX_POWER_IN_KW = "maxPowerInKw"
@@ -14,11 +27,3 @@ ATTR_UPDATED_AT = "updatedAt"
 ATTR_AVAILABLE_CHARGE_POINTS = "availableChargePoints"
 ATTR_TOTAL_CHARGE_POINTS = "totalChargePoints"
 ATTR_OUT_OF_SERVICE = "isOutOfService"
-DOMAIN = "enbw_chargestations"
-STATION_NUMBER = "station_number"
-NAME = "name"
-LATITUDE = "latitude"
-LONGITUDE = "longitude"
-SEARCH_RADIUS = "search_radius"
-API_KEY = "api_key"
-DEG_PER_KM = 1 / 111

@@ -1,0 +1,20 @@
+{
+    "entity": {
+        "sensor": {
+            "total_charge_points": {
+                "default": "mdi:ev-station"
+            },
+            "available_charge_points": {
+                "default": "mdi:ev-station"
+            },
+            "unknown_state_charge_points": {
+                "default": "mdi:ev-station"
+            }
+        },
+        "device_tracker": {
+            "location": {
+                "default": "mdi:ev-station"
+            }
+        }
+    }
+}

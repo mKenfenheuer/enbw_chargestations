@@ -4,10 +4,11 @@
   "codeowners": ["@mkenfenheuer"],
   "config_flow": true,
   "dependencies": [],
-  "integration_type": "device",
   "documentation": "https://github.com/mKenfenheuer/enbw_chargestations/",
+  "integration_type": "device",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/mKenfenheuer/enbw_chargestations/issues",
-  "requirements": ["requests>=2.25.1"],
-  "version": "2.0.9"
+  "loggers": ["custom_components.enbw_chargestations"],
+  "requirements": [],
+  "version": "3.0.0"
 }

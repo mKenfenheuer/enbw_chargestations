@@ -1,54 +1,101 @@
 {
     "config": {
-        "abort": {
-            "reconfigure_successful": "Re-configuration was successful"
-        },
-        "error": {},
         "step": {
             "user": {
-                "data": {
-                    "name": "Enter display name of the charge station",
-                    "station_number": "Enter station number obtained from map via developer tools.",
-                    "api_key": "Enter api key obtained from map via Ocp-Apim-Subscription-Key header via developer tools.",
-                    "latitude": "Enter longitude of location from wich you would like to search for charge stations.",
-                    "longitude": "Enter latitude of location from wich you would like to search for charge stations.",
-                    "search_radius": "Enter search radius in which you would like to search for charge stations."
-                },
+                "title": "Add EnBW charge station",
                 "description": "Provide configuration data. See documentation for further info.",
-                "title": "Add EnBw Charge station"
+                "data": {
+                    "name": "Display name",
+                    "station_number": "Station number (optional)",
+                    "latitude": "Search latitude",
+                    "longitude": "Search longitude",
+                    "search_radius": "Search radius (km)",
+                    "api_key": "API key"
+                },
+                "data_description": {
+                    "name": "The name shown for this charge station device.",
+                    "station_number": "Station number obtained from the EnBW map via developer tools. Leave empty to search nearby stations.",
+                    "latitude": "Latitude of the location from which to search for charge stations.",
+                    "longitude": "Longitude of the location from which to search for charge stations.",
+                    "search_radius": "Radius in kilometers to search for charge stations.",
+                    "api_key": "API key obtained from the EnBW map via the Ocp-Apim-Subscription-Key header in developer tools."
+                }
             },
             "search_station": {
+                "title": "Select charge station",
+                "description": "Select the station you would like to add from the list below.",
                 "data": {
                     "station_number": "Station"
-                },
-                "description": "Select station to import from below list.",
-                "title": "Add EnBw Charge station"
+                }
             },
             "reconfigure": {
+                "title": "Reconfigure EnBW charge station",
+                "description": "Update the configuration for this charge station.",
                 "data": {
-                    "name": "Enter display name of the charge station",
-                    "station_number": "Enter station number obtained from map via developer tools.",
-                    "api_key": "Enter api key obtained from map via Ocp-Apim-Subscription-Key header via developer tools."
-                },
-                "description": "Provide configuration data. See documentation for further info.",
-                "title": "Add EnBw Charge station"
+                    "name": "Display name",
+                    "station_number": "Station number",
+                    "api_key": "API key"
+                }
+            },
+            "reauth_confirm": {
+                "title": "Re-authenticate EnBW charge station",
+                "description": "The API key was rejected. Please enter a new API key.",
+                "data": {
+                    "api_key": "API key"
+                }
             }
+        },
+        "error": {
+            "cannot_connect": "Failed to connect to the EnBW API. Please try again.",
+            "invalid_auth": "Invalid API key.",
+            "no_stations_found": "No charge stations were found near the given location."
+        },
+        "abort": {
+            "already_configured": "This charge station is already configured.",
+            "reconfigure_successful": "Re-configuration was successful.",
+            "reauth_successful": "Re-authentication was successful."
+        }
+    },
+    "exceptions": {
+        "cannot_connect": {
+            "message": "Failed to connect to the EnBW API."
+        },
+        "invalid_auth": {
+            "message": "The API key was rejected by the EnBW API."
         }
     },
     "entity": {
-        "sensor": {
-            "charge_point":{
+        "binary_sensor": {
+            "charge_station": {
+                "name": "Availability",
                 "state": {
-                "OCCUPIED": "Occupied",
-                "AVAILABLE": "Available"
+                    "off": "Occupied",
+                    "on": "Available"
                 }
             },
-            "charge_station":{
+            "charge_point": {
+                "name": "Charge point {index}",
                 "state": {
-                "Unavailable": "Unavailable",
-                "Available": "Available"
+                    "off": "Available",
+                    "on": "Occupied"
                 }
             }
-    }
+        },
+        "sensor": {
+            "total_charge_points": {
+                "name": "Total charge points"
+            },
+            "available_charge_points": {
+                "name": "Available charge points"
+            },
+            "unknown_state_charge_points": {
+                "name": "Unknown state charge points"
+            }
+        },
+        "device_tracker": {
+            "location": {
+                "name": "Location"
+            }
+        }
     }
 }

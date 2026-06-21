@@ -1,24 +1,24 @@
-"""Config flow for Pi Assistant component."""
+"""Config flow for the EnBW Charge Stations integration."""
 
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-import requests
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigEntry, ConfigFlow
-from homeassistant.core import HomeAssistant
-from homeassistant.util.location import distance
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
 )
+from homeassistant.util.location import distance
 
+from .api import EnbwApiClient, EnbwApiError, EnbwAuthError
 from .const import (
     API_KEY,
     DEG_PER_KM,
@@ -33,299 +33,218 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-class ChargeStationModel:
-    """ChargeStationObject."""
-
-    def __init__(self, json, hass: HomeAssistant) -> None:
-        """Initialize."""
-        if not isinstance(json, dict):
-            raise KeyError("Json not dict")
-        self.station_number = json["stationId"]
-        self.address = json["shortAddress"]
-        self.plug_types = json["plugTypeNames"]
-        self.max_power_in_kw = json["maxPowerInKw"]
-        self.charge_points = json["numberOfChargePoints"]
-        self.station_location = {"latitude": json["lat"], "longitude": json["lon"]}
-        self.home_location = {
-            "latitude": hass.config.latitude,
-            "longitude": hass.config.longitude,
-        }
-        self.distance_to_home = distance(
-            self.home_location["latitude"],
-            self.home_location["longitude"],
-            self.station_location["latitude"],
-            self.station_location["longitude"],
-        )
+def _station_option(station: dict[str, Any], distance_m: float) -> SelectOptionDict:
+    """Build a select option from a station payload."""
+    return SelectOptionDict(
+        value=str(station["stationId"]),
+        label=(
+            f"{station.get('shortAddress')} "
+            f"({round(distance_m / 1000, 1)} km, "
+            f"{station.get('maxPowerInKw')} kw)"
+        ),
+    )
 
 
 class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow ."""
+    """Handle a config flow for EnBW Charge Stations."""
 
     VERSION = 1
 
     def __init__(self) -> None:
         """Initialize."""
-        super().__init__()
-        self.stations: list[ChargeStationModel] = []
-        self.api_key: str | None = None
-        self.latitude: float = 0
-        self.longitude: float = 0
-        self.search_radius: float = 10
-        self.station_number: str = ""
-        self.name: str = ""
+        self._api_key: str = ""
+        self._name: str = "Charge Station"
+        self._latitude: float = 0
+        self._longitude: float = 0
+        self._search_radius: float = 10
+        self._station_options: list[SelectOptionDict] = []
 
-    def get_charge_station(
-        self, station_number: str, api_key: str, hass: HomeAssistant
-    ) -> ChargeStationModel:
-        """Get charge station from api."""
-        try:
-            http_response = requests.get(
-                f"https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations/{station_number}",
-                headers={
-                    "User-Agent": "Home Assistant",
-                    "Ocp-Apim-Subscription-Key": api_key,
-                    "Origin": "https://www.enbw.com",
-                    "Referer": "https://www.enbw.com/",
-                },
-                timeout=1,
-            )
-            if http_response.status_code >= 400:
-                return None
-            response = http_response.json()
-            return ChargeStationModel(response, hass)
-        except Exception as ex:  # pylint: disable=broad-except  # noqa: BLE001
-            _LOGGER.exception(ex)
-            return None
+    def _client(self) -> EnbwApiClient:
+        return EnbwApiClient(async_get_clientsession(self.hass), self._api_key)
 
-    async def async_get_charge_station(
-        self, station_number: str, api_key: str, hass: HomeAssistant
-    ) -> ChargeStationModel:
-        """Get charge station from api."""
-        return await hass.async_add_executor_job(
-            self.get_charge_station, station_number, api_key, hass
+    async def _async_search_stations(self) -> list[SelectOptionDict]:
+        """Search stations around the configured location."""
+        client = self._client()
+        half = DEG_PER_KM * 0.5 * self._search_radius
+        stations = await client.async_get_charge_stations(
+            self._latitude - half,
+            self._longitude - half,
+            self._latitude + half,
+            self._longitude + half,
         )
 
-    def get_charge_stations(
-        self,
-        fromLat: float,
-        fromLong: float,
-        toLat: float,
-        toLong: float,
-        api_key: str,
-        hass: HomeAssistant,
-        grouping: bool = False,
-    ) -> list[ChargeStationModel]:
-        """Get Chargestations."""
-        url = f"https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations?fromLat={fromLat}&toLat={toLat}&fromLon={fromLong}&toLon={toLong}&grouping=false&groupingDivisor=15"
-        try:
-            http_response = requests.get(
-                url,
-                headers={
-                    "User-Agent": "Home Assistant",
-                    "Ocp-Apim-Subscription-Key": api_key,
-                    "Origin": "https://www.enbw.com",
-                    "Referer": "https://www.enbw.com/",
-                },
-                timeout=1,
+        home_lat = self.hass.config.latitude
+        home_lon = self.hass.config.longitude
+        scored = [
+            (
+                station,
+                distance(home_lat, home_lon, station["lat"], station["lon"]),
             )
-            if http_response.status_code >= 400:
-                return []
-            response = http_response.json()
-            stations = [x for x in response if isinstance(x, dict)]
-            stations = [ChargeStationModel(x, hass) for x in stations]
-            stations = [x for x in stations if x.station_number is not None]
-            stations.sort(key=lambda x: x.distance_to_home)
-            return stations[:15]
-        except Exception as ex:
-            _LOGGER.exception(ex)
-            return []
+            for station in stations
+            if station.get("stationId") is not None
+        ]
+        scored.sort(key=lambda item: item[1])
+        return [_station_option(station, dist) for station, dist in scored[:15]]
 
-    async def async_get_charge_stations(
-        self,
-        fromLat: float,
-        fromLong: float,
-        toLat: float,
-        toLong: float,
-        api_key: str,
-        hass: HomeAssistant,
-        grouping: bool = False,
-    ) -> list[ChargeStationModel]:
-        """Get Chargestations."""
-        return await hass.async_add_executor_job(
-            self.get_charge_stations,
-            fromLat,
-            fromLong,
-            toLat,
-            toLong,
-            api_key,
-            hass,
-            grouping,
-        )
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle the initial step."""
+        errors: dict[str, str] = {}
 
-    def generate_schema(self):
-        """Geneate Schema."""
+        if user_input is not None:
+            self._api_key = user_input[API_KEY]
+            self._name = user_input[NAME]
+            self._latitude = user_input[LATITUDE]
+            self._longitude = user_input[LONGITUDE]
+            self._search_radius = user_input[SEARCH_RADIUS]
+            station_number = user_input.get(STATION_NUMBER, "").strip()
+
+            try:
+                if station_number:
+                    # Validate the explicit station number.
+                    await self._client().async_get_charge_station(station_number)
+                    return await self._async_create(station_number)
+
+                self._station_options = await self._async_search_stations()
+            except EnbwAuthError:
+                errors["base"] = "invalid_auth"
+            except EnbwApiError:
+                errors["base"] = "cannot_connect"
+            else:
+                if not self._station_options:
+                    errors["base"] = "no_stations_found"
+                else:
+                    return await self.async_step_search_station()
 
         latitude = self.hass.config.latitude
         longitude = self.hass.config.longitude
-
-        return {
-            vol.Required(NAME, default="Charge Station"): str,
-            vol.Optional(STATION_NUMBER, default=""): str,
-            vol.Required(LATITUDE, default=latitude): cv.latitude,
-            vol.Required(LONGITUDE, default=longitude): cv.longitude,
-            vol.Required(SEARCH_RADIUS, default=10): cv.positive_float,
-            vol.Required(
-                API_KEY,
-            ): str,
-        }
-
-    def generate_schema_config(self, config_entry: ConfigEntry):
-        """Geneate Schema."""
-
-        return {
-            vol.Required(
-                NAME, default=config_entry.data.get(NAME, "Charge Station")
-            ): str,
-            vol.Required(
-                STATION_NUMBER, default=config_entry.data.get(STATION_NUMBER, "393894")
-            ): str,
-            vol.Required(
-                API_KEY,
-                default=config_entry.data.get(API_KEY, ""),
-            ): str,
-        }
-
-    def generate_schema_select(self):
-        """Geneate Schema."""
-
-        return {
-            vol.Required(STATION_NUMBER): SelectSelector(
-                SelectSelectorConfig(
-                    options=[
-                        SelectOptionDict(
-                            value=str(x.station_number),
-                            label=f"{x.address} ({round(x.distance_to_home / 1000, 1)} km, {x.max_power_in_kw} kw)",
-                        )
-                        for x in self.stations
-                    ],
-                    multiple=False,
-                    mode=SelectSelectorMode.LIST,
-                )
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(NAME, default="Charge Station"): str,
+                    vol.Optional(STATION_NUMBER, default=""): str,
+                    vol.Required(LATITUDE, default=latitude): cv.latitude,
+                    vol.Required(LONGITUDE, default=longitude): cv.longitude,
+                    vol.Required(SEARCH_RADIUS, default=10): cv.positive_float,
+                    vol.Required(API_KEY): str,
+                }
             ),
-        }
+            errors=errors,
+        )
 
-    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None):
-        """Reconfigure step."""
-        config = self.hass.config_entries.async_get_entry(self.context["entry_id"])
+    async def async_step_search_station(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle selecting a station from the search results."""
+        if user_input is not None:
+            return await self._async_create(user_input[STATION_NUMBER])
 
-        data_schema = self.generate_schema_config(config)
+        return self.async_show_form(
+            step_id="search_station",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(STATION_NUMBER): SelectSelector(
+                        SelectSelectorConfig(
+                            options=self._station_options,
+                            multiple=False,
+                            mode=SelectSelectorMode.LIST,
+                        )
+                    ),
+                }
+            ),
+        )
 
-        errors = {}
+    async def _async_create(self, station_number: str) -> ConfigFlowResult:
+        """Create the config entry for the selected station."""
+        await self.async_set_unique_id(station_number)
+        self._abort_if_unique_id_configured()
+        return self.async_create_entry(
+            title=self._name,
+            data={
+                STATION_NUMBER: station_number,
+                API_KEY: self._api_key,
+                NAME: self._name,
+            },
+        )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle reconfiguration of an existing entry."""
+        entry = self._get_reconfigure_entry()
+        errors: dict[str, str] = {}
 
         if user_input is not None:
+            self._api_key = user_input[API_KEY]
+            station_number = user_input[STATION_NUMBER].strip()
             try:
-                self.hass.config_entries.async_update_entry(
-                    entry=config, data=user_input
+                await self._client().async_get_charge_station(station_number)
+            except EnbwAuthError:
+                errors["base"] = "invalid_auth"
+            except EnbwApiError:
+                errors["base"] = "cannot_connect"
+            else:
+                return self.async_update_reload_and_abort(
+                    entry,
+                    title=user_input[NAME],
+                    data={
+                        NAME: user_input[NAME],
+                        STATION_NUMBER: station_number,
+                        API_KEY: self._api_key,
+                    },
                 )
-                await self.hass.config_entries.async_reload(config.entry_id)
-                return self.async_abort(reason="reconfigure_successful")
-            except Exception:  # pylint: disable=broad-except
-                _LOGGER.exception("Unknown exception.")
-                errors["base"] = "Unknown exception."
 
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=vol.Schema(data_schema),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        NAME, default=entry.data.get(NAME, "Charge Station")
+                    ): str,
+                    vol.Required(
+                        STATION_NUMBER, default=entry.data.get(STATION_NUMBER, "")
+                    ): str,
+                    vol.Required(
+                        API_KEY, default=entry.data.get(API_KEY, "")
+                    ): str,
+                }
+            ),
+            errors=errors,
         )
 
-    async def async_step_user(self, user_input: dict[str, Any] | None = None):
-        """Handle the initial step."""
+    async def async_step_reauth(
+        self, entry_data: dict[str, Any]
+    ) -> ConfigFlowResult:
+        """Handle re-authentication when the API key is rejected."""
+        return await self.async_step_reauth_confirm()
 
-        errors = {}
-
-        data_schema = self.generate_schema()
-
-        if user_input is not None:
-            try:
-                # self._async_abort_entries_match(
-                #    {STATION_NUMBER: user_input[STATION_NUMBER]}
-                # )
-
-                self.api_key = user_input[API_KEY]
-                self.station_number = user_input[STATION_NUMBER]
-                self.name = user_input[NAME]
-                self.latitude = user_input[LATITUDE]
-                self.longitude = user_input[LONGITUDE]
-                self.search_radius = user_input[SEARCH_RADIUS]
-                station = await self.async_get_charge_station(
-                    self.station_number, self.api_key, self.hass
-                )
-                if station is not None:
-                    # Station found
-                    self.stations.append(station)
-
-                if len(self.stations) == 0:
-                    self.stations = await self.async_get_charge_stations(
-                        self.latitude - DEG_PER_KM * 0.5 * self.search_radius,
-                        self.longitude - DEG_PER_KM * 0.5 * self.search_radius,
-                        self.latitude + DEG_PER_KM * 0.5 * self.search_radius,
-                        self.longitude + DEG_PER_KM * 0.5 * self.search_radius,
-                        self.api_key,
-                        self.hass,
-                        False,
-                    )
-                    return self.async_show_form(
-                        step_id="search_station",
-                        data_schema=vol.Schema(self.generate_schema_select()),
-                    )
-
-                self._async_abort_entries_match({STATION_NUMBER: self.station_number})
-                return self.async_create_entry(
-                    title=user_input.get(
-                        NAME,
-                    ),
-                    data=user_input,
-                )
-            except Exception:  # pylint: disable=broad-except
-                _LOGGER.exception("Unknown exception.")
-                errors["base"] = "Unknown exception."
-
-        return self.async_show_form(step_id="user", data_schema=vol.Schema(data_schema))
-
-    async def async_step_search_station(self, user_input: dict[str, Any] | None = None):
-        """Handle the search_station step."""
-
-        errors = {}
+    async def async_step_reauth_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Confirm re-authentication with a new API key."""
+        entry = self._get_reauth_entry()
+        errors: dict[str, str] = {}
 
         if user_input is not None:
+            self._api_key = user_input[API_KEY]
             try:
-                self.station_number = user_input[STATION_NUMBER]
-                self._async_abort_entries_match({STATION_NUMBER: self.station_number})
-                return self.async_create_entry(
-                    title=self.name,
-                    data={
-                        STATION_NUMBER: self.station_number,
-                        API_KEY: self.api_key,
-                        NAME: self.name,
-                    },
+                await self._client().async_get_charge_station(
+                    entry.data[STATION_NUMBER]
                 )
-            except Exception:  # pylint: disable=broad-except
-                _LOGGER.exception("Unknown exception.")
-                errors["base"] = "Unknown exception."
+            except EnbwAuthError:
+                errors["base"] = "invalid_auth"
+            except EnbwApiError:
+                errors["base"] = "cannot_connect"
+            else:
+                return self.async_update_reload_and_abort(
+                    entry,
+                    data={**entry.data, API_KEY: self._api_key},
+                )
 
-        if len(self.stations) == 0:
-            self.stations = await self.async_get_charge_stations(
-                self.latitude - DEG_PER_KM * 0.5 * self.search_radius,
-                self.longitude - DEG_PER_KM * 0.5 * self.search_radius,
-                self.latitude + DEG_PER_KM * 0.5 * self.search_radius,
-                self.longitude + DEG_PER_KM * 0.5 * self.search_radius,
-                self.api_key,
-                self.hass,
-                False,
-            )
-            return self.async_show_form(
-                step_id="search_station",
-                data_schema=vol.Schema(self.generate_schema_select()),
-            )
-
-        return self.async_abort(reason="unknown_error")
+        return self.async_show_form(
+            step_id="reauth_confirm",
+            data_schema=vol.Schema({vol.Required(API_KEY): str}),
+            errors=errors,
+        )

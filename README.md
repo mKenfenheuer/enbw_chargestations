@@ -11,9 +11,16 @@ The EnBw charge stations component for Home Assistant makes it possible to act b
 
 ## Features
 
-- Status of the charge point, including detailed information using attributes 
-- Sensor counter to display the number of total, free and unknown state charge points.
-- Easy integration using search feature
+- Status of the charge point, including detailed information using attributes
+- Sensor counter to display the number of total, free and unknown state charge points
+- A device tracker per station exposing its location, so stations can be shown on the Home Assistant map and used with the Proximity integration
+- Easy integration using the search feature
+
+### Monitoring multiple charging stations
+
+Each charge station is configured as its own entry. To monitor several stations,
+add the integration multiple times — once per station. Every station becomes its
+own device with its own set of entities.
 
 
 ## Setup
@@ -43,6 +50,21 @@ The EnBw charge stations component for Home Assistant makes it possible to act b
 5. Optional: Provide a Station Number (may be needed if your desired station is not shown in the search list)
 6. If station number was not provided, select one from the list.
 7. Enjoy
+
+## Removing the integration
+
+Remove the charge station device (or its config entry) from
+**Settings → Devices & Services → ENBW Charge Stations**. No additional cleanup
+is required.
+
+## Troubleshooting
+
+- **Entities are unavailable:** the integration polls the EnBW cloud API every
+  60 seconds. Temporary API outages mark entities as *unavailable* until the next
+  successful update; they recover automatically.
+- **API key rejected:** if the API key expires, Home Assistant raises a
+  re-authentication prompt. Provide a fresh key obtained from the EnBW map as
+  described above.
 
 ## Screenshots
 ![image](screenshots/screen1.png)
