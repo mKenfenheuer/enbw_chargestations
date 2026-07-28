@@ -122,19 +122,7 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
             self._search_radius = (
                 location.get("radius", DEFAULT_SEARCH_RADIUS_M) / 1000
             )
-            station_number = user_input.get(STATION_NUMBER, "").strip()
-
             try:
-                if station_number:
-                    # Validate the explicit station number, and name the entry
-                    # after the station it turns out to be.
-                    station = await self._client().async_get_charge_station(
-                        station_number
-                    )
-                    return await self._async_create(
-                        station_number, _station_name(station, station_number)
-                    )
-
                 self._station_options = await self._async_search_stations()
             except EnbwAuthError:
                 errors["base"] = "invalid_auth"
@@ -147,7 +135,6 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
                     return await self.async_step_search_station()
 
         schema: dict[Any, Any] = {
-            vol.Optional(STATION_NUMBER, default=""): str,
             vol.Required(
                 LOCATION,
                 default={

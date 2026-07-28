@@ -5,12 +5,10 @@
                 "title": "EnBW-Ladestation hinzufügen",
                 "description": "Konfigurationsdaten angeben. Weitere Infos in der Dokumentation.",
                 "data": {
-                    "station_number": "Stationsnummer (optional)",
                     "location": "Suchgebiet",
                     "api_key": "API-Schlüssel"
                 },
                 "data_description": {
-                    "station_number": "Stationsnummer aus der EnBW-Karte über die Entwicklertools. Leer lassen, um Stationen in der Nähe zu suchen.",
                     "location": "Ziehe den Marker auf den Mittelpunkt des Suchgebiets und stelle über den Radius-Anfasser ein, wie weit im Umkreis nach Ladestationen gesucht wird.",
                     "api_key": "API-Schlüssel aus der EnBW-Karte über den Header Ocp-Apim-Subscription-Key in den Entwicklertools. Leer lassen, um den Schlüssel einer bereits konfigurierten Ladestation zu übernehmen."
                 }

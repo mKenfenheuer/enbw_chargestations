@@ -5,12 +5,10 @@
                 "title": "Add EnBW charge station",
                 "description": "Provide configuration data. See documentation for further info.",
                 "data": {
-                    "station_number": "Station number (optional)",
                     "location": "Search area",
                     "api_key": "API key"
                 },
                 "data_description": {
-                    "station_number": "Station number obtained from the EnBW map via developer tools. Leave empty to search nearby stations.",
                     "location": "Drag the marker to the center of the area to search, and use the radius handle to set how far around it charge stations are looked up.",
                     "api_key": "API key obtained from the EnBW map via the Ocp-Apim-Subscription-Key header in developer tools. Leave empty to reuse the key from an already configured charge station."
                 }
