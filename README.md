@@ -69,6 +69,20 @@ is required.
   re-authentication prompt. Provide a fresh key obtained from the EnBW map as
   described above.
 
+## Development
+
+The test suite runs against a real Home Assistant core via
+[pytest-homeassistant-custom-component](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component):
+
+```bash
+pip install -r requirements-test.txt
+pytest
+```
+
+The pinned `pytest-homeassistant-custom-component` version determines which
+Home Assistant release the tests run against — bump it to test against a newer
+core.
+
 ## Screenshots
 ![image](screenshots/screen1.png)
 ![image](screenshots/screen2.png)
