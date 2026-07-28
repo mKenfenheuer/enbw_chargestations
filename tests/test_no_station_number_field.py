@@ -49,7 +49,8 @@ async def test_user_step_only_asks_for_area_and_key(hass):
         "enbw_chargestations", context={"source": "user"}
     )
     keys = [str(marker) for marker in result["data_schema"].schema]
-    assert keys == ["location", "api_key"]
+    # The API key is asked for first, the search area map below it.
+    assert keys == ["api_key", "location"]
 
 @pytest.mark.asyncio
 async def test_flow_always_goes_through_the_map_search(
