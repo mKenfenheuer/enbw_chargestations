@@ -135,7 +135,13 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
                 else:
                     return await self.async_step_search_station()
 
-        schema: dict[Any, Any] = {
+        # The API key comes first, the search area map below it.
+        schema: dict[Any, Any] = {}
+        if existing_api_key:
+            schema[vol.Optional(API_KEY)] = str
+        else:
+            schema[vol.Required(API_KEY)] = str
+        schema[
             vol.Required(
                 LOCATION,
                 default={
@@ -143,12 +149,8 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
                     "longitude": self.hass.config.longitude,
                     "radius": DEFAULT_SEARCH_RADIUS_M,
                 },
-            ): LocationSelector(LocationSelectorConfig(radius=True)),
-        }
-        if existing_api_key:
-            schema[vol.Optional(API_KEY)] = str
-        else:
-            schema[vol.Required(API_KEY)] = str
+            )
+        ] = LocationSelector(LocationSelectorConfig(radius=True))
 
         return self.async_show_form(
             step_id="user",
