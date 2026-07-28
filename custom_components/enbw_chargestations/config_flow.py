@@ -176,7 +176,7 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
                         SelectSelectorConfig(
                             options=self._station_options,
                             multiple=False,
-                            mode=SelectSelectorMode.LIST,
+                            mode=SelectSelectorMode.DROPDOWN,
                         )
                     ),
                 }
