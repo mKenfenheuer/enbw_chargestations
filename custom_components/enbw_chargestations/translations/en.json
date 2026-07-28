@@ -3,14 +3,14 @@
         "step": {
             "user": {
                 "title": "Add EnBW charge station",
-                "description": "Provide configuration data. See documentation for further info.",
+                "description": "Provide configuration data. The API key can be read from the [EnBW charge station finder](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder) via the Ocp-Apim-Subscription-Key header in your browser's developer tools.",
                 "data": {
-                    "location": "Search area",
-                    "api_key": "API key"
+                    "api_key": "API key",
+                    "location": "Search area"
                 },
                 "data_description": {
-                    "location": "Drag the marker to the center of the area to search, and use the radius handle to set how far around it charge stations are looked up.",
-                    "api_key": "API key obtained from the EnBW map via the Ocp-Apim-Subscription-Key header in developer tools. Leave empty to reuse the key from an already configured charge station."
+                    "api_key": "Leave empty to reuse the key from an already configured charge station.",
+                    "location": "Drag the marker to the center of the area to search, and use the radius handle to set how far around it charge stations are looked up."
                 }
             },
             "search_station": {
@@ -31,7 +31,7 @@
             },
             "reauth_confirm": {
                 "title": "Re-authenticate EnBW charge station",
-                "description": "The API key was rejected. Please enter a new API key.",
+                "description": "The API key was rejected. Please enter a new API key. You can find it in the [EnBW charge station finder](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder) via the Ocp-Apim-Subscription-Key header in your browser's developer tools.",
                 "data": {
                     "api_key": "API key"
                 }
