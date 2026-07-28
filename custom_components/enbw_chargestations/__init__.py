@@ -32,11 +32,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: EnbwConfigEntry) -> boo
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
-async def async_reload_entry(hass: HomeAssistant, entry: EnbwConfigEntry) -> None:
-    """Reload a config entry."""
-    await hass.config_entries.async_reload(entry.entry_id)
-
-
 async def async_remove_config_entry_device(
     hass: HomeAssistant,
     config_entry: ConfigEntry,

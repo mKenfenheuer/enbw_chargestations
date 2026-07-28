@@ -18,7 +18,7 @@
                     "latitude": "Latitude of the location from which to search for charge stations.",
                     "longitude": "Longitude of the location from which to search for charge stations.",
                     "search_radius": "Radius in kilometers to search for charge stations.",
-                    "api_key": "API key obtained from the EnBW map via the Ocp-Apim-Subscription-Key header in developer tools."
+                    "api_key": "API key obtained from the EnBW map via the Ocp-Apim-Subscription-Key header in developer tools. Leave empty to reuse the key from an already configured charge station."
                 }
             },
             "search_station": {
