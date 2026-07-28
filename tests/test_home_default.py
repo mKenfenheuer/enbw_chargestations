@@ -15,7 +15,7 @@ async def test_marker_starts_at_configured_home(hass):
 
     assert default["latitude"] == 48.7758
     assert default["longitude"] == 9.1829
-    assert default["radius"] == 10000
+    assert default["radius"] == 5000  # 5 km
 
 @pytest.mark.asyncio
 async def test_marker_follows_a_moved_home(hass):

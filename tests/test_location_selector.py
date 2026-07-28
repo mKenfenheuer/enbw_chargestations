@@ -63,7 +63,7 @@ async def test_user_step_offers_location_selector(hass):
     default = marker.default()
     assert default["latitude"] == hass.config.latitude
     assert default["longitude"] == hass.config.longitude
-    assert default["radius"] == 10000
+    assert default["radius"] == 5000  # 5 km
 
 @pytest.mark.asyncio
 async def test_search_uses_map_radius(hass):
