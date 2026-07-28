@@ -1,6 +1,9 @@
 {
     "entity": {
         "sensor": {
+            "station_number": {
+                "default": "mdi:identifier"
+            },
             "total_charge_points": {
                 "default": "mdi:ev-station"
             },
