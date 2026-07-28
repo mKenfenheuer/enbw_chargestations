@@ -29,7 +29,7 @@ own device with its own set of entities.
 2. Add the repo as a custom repository
 3. Install the integration
 4. Restart HomeAssistant
-5. Acquire a API Key and Station Number if preferred (This can be done using the developer tools of your browser)
+5. Acquire an API Key (This can be done using the developer tools of your browser)
     
     * Open the [map](https://www.enbw.com/elektromobilitaet/produkte/mobilityplus-app/ladestation-finden/map) to find nearby charge stations.
     * Open the development tools and network monitor of your browser
@@ -40,16 +40,19 @@ own device with its own set of entities.
       ```
       https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations/{STATION_NUMBER}
       ```
-      You can also use the station number at the end of the request for the setup.
     * Open the request and search for the API Key in the headers. It is a hexadecimal value and will look like this:
       ```
       Ocp-Apim-Subscription-Key: {API_KEY}
       ```
-3. Add the Integration from the HomeAssistant UI
-4. Provide the API-Key
-5. Optional: Provide a Station Number (may be needed if your desired station is not shown in the search list)
-6. If station number was not provided, select one from the list.
-7. Enjoy
+6. Add the Integration from the HomeAssistant UI
+7. Provide the API-Key (this can be left empty once a first charge station is set up — the stored key is reused)
+8. Move the marker on the map to the area you want to search, and set the radius around it
+9. Select a station from the list of results
+10. Enjoy
+
+If the station you want does not show up in the results, enlarge the search
+radius or move the marker closer to it. A specific station number can also be
+set afterwards via **Configure** on the integration entry.
 
 ## Removing the integration
 

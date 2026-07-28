@@ -26,6 +26,7 @@ from .const import (
     DEG_PER_KM,
     DOMAIN,
     LOCATION,
+    MAX_SEARCH_RESULTS,
     NAME,
     STATION_NUMBER,
 )
@@ -45,6 +46,12 @@ def _station_option(station: dict[str, Any], distance_m: float) -> SelectOptionD
     )
 
 
+def _station_name(station: dict[str, Any], station_number: str) -> str:
+    """Derive the entry name from the station itself."""
+    address = station.get("shortAddress")
+    return str(address) if address else f"Charge station {station_number}"
+
+
 class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for EnBW Charge Stations."""
 
@@ -53,11 +60,11 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Initialize."""
         self._api_key: str = ""
-        self._name: str = "Charge Station"
         self._latitude: float = 0
         self._longitude: float = 0
         self._search_radius: float = 10
         self._station_options: list[SelectOptionDict] = []
+        self._station_names: dict[str, str] = {}
 
     def _client(self) -> EnbwApiClient:
         return EnbwApiClient(async_get_clientsession(self.hass), self._api_key)
@@ -91,7 +98,14 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
             if station.get("stationId") is not None
         ]
         scored.sort(key=lambda item: item[1])
-        return [_station_option(station, dist) for station, dist in scored[:15]]
+        nearest = scored[:MAX_SEARCH_RESULTS]
+        self._station_names = {
+            str(station["stationId"]): _station_name(
+                station, str(station["stationId"])
+            )
+            for station, _ in nearest
+        }
+        return [_station_option(station, dist) for station, dist in nearest]
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -102,7 +116,6 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             self._api_key = user_input.get(API_KEY) or existing_api_key or ""
-            self._name = user_input[NAME]
             location = user_input[LOCATION]
             self._latitude = location["latitude"]
             self._longitude = location["longitude"]
@@ -110,14 +123,7 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
             self._search_radius = (
                 location.get("radius", DEFAULT_SEARCH_RADIUS_M) / 1000
             )
-            station_number = user_input.get(STATION_NUMBER, "").strip()
-
             try:
-                if station_number:
-                    # Validate the explicit station number.
-                    await self._client().async_get_charge_station(station_number)
-                    return await self._async_create(station_number)
-
                 self._station_options = await self._async_search_stations()
             except EnbwAuthError:
                 errors["base"] = "invalid_auth"
@@ -130,8 +136,6 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
                     return await self.async_step_search_station()
 
         schema: dict[Any, Any] = {
-            vol.Required(NAME, default="Charge Station"): str,
-            vol.Optional(STATION_NUMBER, default=""): str,
             vol.Required(
                 LOCATION,
                 default={
@@ -157,7 +161,13 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle selecting a station from the search results."""
         if user_input is not None:
-            return await self._async_create(user_input[STATION_NUMBER])
+            station_number = user_input[STATION_NUMBER]
+            return await self._async_create(
+                station_number,
+                self._station_names.get(
+                    station_number, f"Charge station {station_number}"
+                ),
+            )
 
         return self.async_show_form(
             step_id="search_station",
@@ -167,23 +177,25 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
                         SelectSelectorConfig(
                             options=self._station_options,
                             multiple=False,
-                            mode=SelectSelectorMode.LIST,
+                            mode=SelectSelectorMode.DROPDOWN,
                         )
                     ),
                 }
             ),
         )
 
-    async def _async_create(self, station_number: str) -> ConfigFlowResult:
+    async def _async_create(
+        self, station_number: str, name: str
+    ) -> ConfigFlowResult:
         """Create the config entry for the selected station."""
         await self.async_set_unique_id(station_number)
         self._abort_if_unique_id_configured()
         return self.async_create_entry(
-            title=self._name,
+            title=name,
             data={
                 STATION_NUMBER: station_number,
                 API_KEY: self._api_key,
-                NAME: self._name,
+                NAME: name,
             },
         )
 
