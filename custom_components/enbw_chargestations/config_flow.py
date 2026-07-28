@@ -8,9 +8,10 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
+    LocationSelector,
+    LocationSelectorConfig,
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
@@ -21,12 +22,11 @@ from homeassistant.util.location import distance
 from .api import EnbwApiClient, EnbwApiError, EnbwAuthError
 from .const import (
     API_KEY,
+    DEFAULT_SEARCH_RADIUS_M,
     DEG_PER_KM,
     DOMAIN,
-    LATITUDE,
-    LONGITUDE,
+    LOCATION,
     NAME,
-    SEARCH_RADIUS,
     STATION_NUMBER,
 )
 
@@ -62,6 +62,13 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
     def _client(self) -> EnbwApiClient:
         return EnbwApiClient(async_get_clientsession(self.hass), self._api_key)
 
+    def _existing_api_key(self) -> str | None:
+        """Return the API key of an already configured charge station, if any."""
+        for entry in self._async_current_entries():
+            if api_key := entry.data.get(API_KEY):
+                return api_key
+        return None
+
     async def _async_search_stations(self) -> list[SelectOptionDict]:
         """Search stations around the configured location."""
         client = self._client()
@@ -91,13 +98,18 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
+        existing_api_key = self._existing_api_key()
 
         if user_input is not None:
-            self._api_key = user_input[API_KEY]
+            self._api_key = user_input.get(API_KEY) or existing_api_key or ""
             self._name = user_input[NAME]
-            self._latitude = user_input[LATITUDE]
-            self._longitude = user_input[LONGITUDE]
-            self._search_radius = user_input[SEARCH_RADIUS]
+            location = user_input[LOCATION]
+            self._latitude = location["latitude"]
+            self._longitude = location["longitude"]
+            # The map hands the radius back in meters, the search works in km.
+            self._search_radius = (
+                location.get("radius", DEFAULT_SEARCH_RADIUS_M) / 1000
+            )
             station_number = user_input.get(STATION_NUMBER, "").strip()
 
             try:
@@ -117,20 +129,26 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
                 else:
                     return await self.async_step_search_station()
 
-        latitude = self.hass.config.latitude
-        longitude = self.hass.config.longitude
+        schema: dict[Any, Any] = {
+            vol.Required(NAME, default="Charge Station"): str,
+            vol.Optional(STATION_NUMBER, default=""): str,
+            vol.Required(
+                LOCATION,
+                default={
+                    "latitude": self.hass.config.latitude,
+                    "longitude": self.hass.config.longitude,
+                    "radius": DEFAULT_SEARCH_RADIUS_M,
+                },
+            ): LocationSelector(LocationSelectorConfig(radius=True)),
+        }
+        if existing_api_key:
+            schema[vol.Optional(API_KEY)] = str
+        else:
+            schema[vol.Required(API_KEY)] = str
+
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(NAME, default="Charge Station"): str,
-                    vol.Optional(STATION_NUMBER, default=""): str,
-                    vol.Required(LATITUDE, default=latitude): cv.latitude,
-                    vol.Required(LONGITUDE, default=longitude): cv.longitude,
-                    vol.Required(SEARCH_RADIUS, default=10): cv.positive_float,
-                    vol.Required(API_KEY): str,
-                }
-            ),
+            data_schema=vol.Schema(schema),
             errors=errors,
         )
 
