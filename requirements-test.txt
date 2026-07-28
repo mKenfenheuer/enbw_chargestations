@@ -1,0 +1,4 @@
+# pytest-homeassistant-custom-component pins a matching Home Assistant core
+# release, so bumping it is how the tests move to a newer HA version.
+pytest-homeassistant-custom-component==0.13.316
+aioresponses==0.7.9
