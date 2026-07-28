@@ -18,7 +18,7 @@
                     "latitude": "Breitengrad des Standorts, von dem aus Ladestationen gesucht werden.",
                     "longitude": "Längengrad des Standorts, von dem aus Ladestationen gesucht werden.",
                     "search_radius": "Suchradius in Kilometern für Ladestationen.",
-                    "api_key": "API-Schlüssel aus der EnBW-Karte über den Header Ocp-Apim-Subscription-Key in den Entwicklertools."
+                    "api_key": "API-Schlüssel aus der EnBW-Karte über den Header Ocp-Apim-Subscription-Key in den Entwicklertools. Leer lassen, um den Schlüssel einer bereits konfigurierten Ladestation zu übernehmen."
                 }
             },
             "search_station": {

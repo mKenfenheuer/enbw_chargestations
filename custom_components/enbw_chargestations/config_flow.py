@@ -62,6 +62,13 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
     def _client(self) -> EnbwApiClient:
         return EnbwApiClient(async_get_clientsession(self.hass), self._api_key)
 
+    def _existing_api_key(self) -> str | None:
+        """Return the API key of an already configured charge station, if any."""
+        for entry in self._async_current_entries():
+            if api_key := entry.data.get(API_KEY):
+                return api_key
+        return None
+
     async def _async_search_stations(self) -> list[SelectOptionDict]:
         """Search stations around the configured location."""
         client = self._client()
@@ -91,9 +98,10 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
+        existing_api_key = self._existing_api_key()
 
         if user_input is not None:
-            self._api_key = user_input[API_KEY]
+            self._api_key = user_input.get(API_KEY) or existing_api_key or ""
             self._name = user_input[NAME]
             self._latitude = user_input[LATITUDE]
             self._longitude = user_input[LONGITUDE]
@@ -119,18 +127,21 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
 
         latitude = self.hass.config.latitude
         longitude = self.hass.config.longitude
+        schema: dict[Any, Any] = {
+            vol.Required(NAME, default="Charge Station"): str,
+            vol.Optional(STATION_NUMBER, default=""): str,
+            vol.Required(LATITUDE, default=latitude): cv.latitude,
+            vol.Required(LONGITUDE, default=longitude): cv.longitude,
+            vol.Required(SEARCH_RADIUS, default=10): cv.positive_float,
+        }
+        if existing_api_key:
+            schema[vol.Optional(API_KEY)] = str
+        else:
+            schema[vol.Required(API_KEY)] = str
+
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(NAME, default="Charge Station"): str,
-                    vol.Optional(STATION_NUMBER, default=""): str,
-                    vol.Required(LATITUDE, default=latitude): cv.latitude,
-                    vol.Required(LONGITUDE, default=longitude): cv.longitude,
-                    vol.Required(SEARCH_RADIUS, default=10): cv.positive_float,
-                    vol.Required(API_KEY): str,
-                }
-            ),
+            data_schema=vol.Schema(schema),
             errors=errors,
         )
 
