@@ -3,7 +3,7 @@ This custom component integrates the status of EnBw charge stations into Home As
 
 ## Notice of Non-Affiliation and Disclaimer
 
-We are not affiliated, associated, authorized, endorsed by, or in any way officially connected with EnBW Energie Baden-Württemberg, or any of its subsidiaries or its affiliates. The official EnBW Energie Baden-Württemberg website can be found at [https://www.enbw.com/](https://www.enbw.com/). The map to find nearby charge stations can be found [here](https://www.enbw.com/elektromobilitaet/produkte/mobilityplus-app/ladestation-finden/map)
+We are not affiliated, associated, authorized, endorsed by, or in any way officially connected with EnBW Energie Baden-Württemberg, or any of its subsidiaries or its affiliates. The official EnBW Energie Baden-Württemberg website can be found at [https://www.enbw.com/](https://www.enbw.com/). The map to find nearby charge stations can be found [here](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder)
 
 ## Description
 
@@ -31,7 +31,7 @@ own device with its own set of entities.
 4. Restart HomeAssistant
 5. Acquire an API Key (This can be done using the developer tools of your browser)
     
-    * Open the [map](https://www.enbw.com/elektromobilitaet/produkte/mobilityplus-app/ladestation-finden/map) to find nearby charge stations.
+    * Open the [charge station finder](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder) to find nearby charge stations.
     * Open the development tools and network monitor of your browser
         * Firefox Network Monitor — [Firefox Source Docs documentation](https://firefox-source-docs.mozilla.org/devtools-user/network_monitor/)
         * Chrome Network features reference - [Chrome Developers](https://developer.chrome.com/docs/devtools/network/reference/)
@@ -66,8 +66,8 @@ is required.
   60 seconds. Temporary API outages mark entities as *unavailable* until the next
   successful update; they recover automatically.
 - **API key rejected:** if the API key expires, Home Assistant raises a
-  re-authentication prompt. Provide a fresh key obtained from the EnBW map as
-  described above.
+  re-authentication prompt. Provide a fresh key obtained from the EnBW charge
+  station finder as described above.
 
 ## Development
 

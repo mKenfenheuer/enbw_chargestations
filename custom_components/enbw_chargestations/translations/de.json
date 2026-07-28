@@ -3,14 +3,14 @@
         "step": {
             "user": {
                 "title": "EnBW-Ladestation hinzufügen",
-                "description": "Konfigurationsdaten angeben. Weitere Infos in der Dokumentation.",
+                "description": "Konfigurationsdaten angeben. Den API-Schlüssel liest du im [EnBW-Ladestationsfinder](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder) über den Header Ocp-Apim-Subscription-Key in den Entwicklertools des Browsers aus.",
                 "data": {
-                    "location": "Suchgebiet",
-                    "api_key": "API-Schlüssel"
+                    "api_key": "API-Schlüssel",
+                    "location": "Suchgebiet"
                 },
                 "data_description": {
-                    "location": "Ziehe den Marker auf den Mittelpunkt des Suchgebiets und stelle über den Radius-Anfasser ein, wie weit im Umkreis nach Ladestationen gesucht wird.",
-                    "api_key": "API-Schlüssel aus der EnBW-Karte über den Header Ocp-Apim-Subscription-Key in den Entwicklertools. Leer lassen, um den Schlüssel einer bereits konfigurierten Ladestation zu übernehmen."
+                    "api_key": "Leer lassen, um den Schlüssel einer bereits konfigurierten Ladestation zu übernehmen.",
+                    "location": "Ziehe den Marker auf den Mittelpunkt des Suchgebiets und stelle über den Radius-Anfasser ein, wie weit im Umkreis nach Ladestationen gesucht wird."
                 }
             },
             "search_station": {
@@ -31,7 +31,7 @@
             },
             "reauth_confirm": {
                 "title": "EnBW-Ladestation erneut authentifizieren",
-                "description": "Der API-Schlüssel wurde abgelehnt. Bitte gib einen neuen API-Schlüssel ein.",
+                "description": "Der API-Schlüssel wurde abgelehnt. Bitte gib einen neuen API-Schlüssel ein. Du findest ihn im [EnBW-Ladestationsfinder](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder) über den Header Ocp-Apim-Subscription-Key in den Entwicklertools des Browsers.",
                 "data": {
                     "api_key": "API-Schlüssel"
                 }
