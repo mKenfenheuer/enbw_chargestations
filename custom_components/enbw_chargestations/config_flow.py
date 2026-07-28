@@ -26,6 +26,7 @@ from .const import (
     DEG_PER_KM,
     DOMAIN,
     LOCATION,
+    MAX_SEARCH_RESULTS,
     NAME,
     STATION_NUMBER,
 )
@@ -97,7 +98,7 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
             if station.get("stationId") is not None
         ]
         scored.sort(key=lambda item: item[1])
-        nearest = scored[:15]
+        nearest = scored[:MAX_SEARCH_RESULTS]
         self._station_names = {
             str(station["stationId"]): _station_name(
                 station, str(station["stationId"])
