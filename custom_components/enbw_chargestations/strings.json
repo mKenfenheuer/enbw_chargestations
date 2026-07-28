@@ -82,6 +82,9 @@
             }
         },
         "sensor": {
+            "station_number": {
+                "name": "Station number"
+            },
             "total_charge_points": {
                 "name": "Total charge points"
             },

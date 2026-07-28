@@ -31,10 +31,22 @@ PARALLEL_UPDATES = 0
 class EnbwSensorEntityDescription(SensorEntityDescription):
     """Describes an EnBW sensor entity."""
 
-    value_fn: Callable[[dict[str, Any]], int | None]
+    value_fn: Callable[[dict[str, Any]], int | str | None]
+
+
+def _station_id(data: dict[str, Any]) -> str | None:
+    """Return the station id as a string, if the payload carries one."""
+    station_id = data.get("stationId")
+    return None if station_id is None else str(station_id)
 
 
 SENSORS: tuple[EnbwSensorEntityDescription, ...] = (
+    EnbwSensorEntityDescription(
+        key="station_number",
+        translation_key="station_number",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_station_id,
+    ),
     EnbwSensorEntityDescription(
         key="total_charge_points",
         translation_key="total_charge_points",
@@ -88,7 +100,7 @@ class EnbwSensor(EnbwEntity, SensorEntity):
         )
 
     @property
-    def native_value(self) -> int | None:
+    def native_value(self) -> int | str | None:
         """Return the value of the sensor."""
         if self.coordinator.data is None:
             return None
