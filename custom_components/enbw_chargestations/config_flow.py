@@ -8,9 +8,10 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
+    LocationSelector,
+    LocationSelectorConfig,
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
@@ -21,12 +22,11 @@ from homeassistant.util.location import distance
 from .api import EnbwApiClient, EnbwApiError, EnbwAuthError
 from .const import (
     API_KEY,
+    DEFAULT_SEARCH_RADIUS_M,
     DEG_PER_KM,
     DOMAIN,
-    LATITUDE,
-    LONGITUDE,
+    LOCATION,
     NAME,
-    SEARCH_RADIUS,
     STATION_NUMBER,
 )
 
@@ -103,9 +103,13 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             self._api_key = user_input.get(API_KEY) or existing_api_key or ""
             self._name = user_input[NAME]
-            self._latitude = user_input[LATITUDE]
-            self._longitude = user_input[LONGITUDE]
-            self._search_radius = user_input[SEARCH_RADIUS]
+            location = user_input[LOCATION]
+            self._latitude = location["latitude"]
+            self._longitude = location["longitude"]
+            # The map hands the radius back in meters, the search works in km.
+            self._search_radius = (
+                location.get("radius", DEFAULT_SEARCH_RADIUS_M) / 1000
+            )
             station_number = user_input.get(STATION_NUMBER, "").strip()
 
             try:
@@ -125,14 +129,17 @@ class EnbwChargeStationsConfigFlow(ConfigFlow, domain=DOMAIN):
                 else:
                     return await self.async_step_search_station()
 
-        latitude = self.hass.config.latitude
-        longitude = self.hass.config.longitude
         schema: dict[Any, Any] = {
             vol.Required(NAME, default="Charge Station"): str,
             vol.Optional(STATION_NUMBER, default=""): str,
-            vol.Required(LATITUDE, default=latitude): cv.latitude,
-            vol.Required(LONGITUDE, default=longitude): cv.longitude,
-            vol.Required(SEARCH_RADIUS, default=10): cv.positive_float,
+            vol.Required(
+                LOCATION,
+                default={
+                    "latitude": self.hass.config.latitude,
+                    "longitude": self.hass.config.longitude,
+                    "radius": DEFAULT_SEARCH_RADIUS_M,
+                },
+            ): LocationSelector(LocationSelectorConfig(radius=True)),
         }
         if existing_api_key:
             schema[vol.Optional(API_KEY)] = str

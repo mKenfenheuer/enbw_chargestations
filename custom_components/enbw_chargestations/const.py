@@ -5,12 +5,13 @@ DOMAIN = "enbw_chargestations"
 # Config entry keys
 STATION_NUMBER = "station_number"
 NAME = "name"
-LATITUDE = "latitude"
-LONGITUDE = "longitude"
-SEARCH_RADIUS = "search_radius"
+LOCATION = "location"
 API_KEY = "api_key"
 
 DEG_PER_KM = 1 / 111
+
+# Default radius of the search area on the map, in meters.
+DEFAULT_SEARCH_RADIUS_M = 10000
 
 # Extra state attribute keys
 ATTR_CABLE_ATTACHED = "cableAttached"

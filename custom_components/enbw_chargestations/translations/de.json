@@ -7,17 +7,13 @@
                 "data": {
                     "name": "Anzeigename",
                     "station_number": "Stationsnummer (optional)",
-                    "latitude": "Suchbreitengrad",
-                    "longitude": "Suchlängengrad",
-                    "search_radius": "Suchradius (km)",
+                    "location": "Suchgebiet",
                     "api_key": "API-Schlüssel"
                 },
                 "data_description": {
                     "name": "Der für diese Ladestation angezeigte Name.",
                     "station_number": "Stationsnummer aus der EnBW-Karte über die Entwicklertools. Leer lassen, um Stationen in der Nähe zu suchen.",
-                    "latitude": "Breitengrad des Standorts, von dem aus Ladestationen gesucht werden.",
-                    "longitude": "Längengrad des Standorts, von dem aus Ladestationen gesucht werden.",
-                    "search_radius": "Suchradius in Kilometern für Ladestationen.",
+                    "location": "Ziehe den Marker auf den Mittelpunkt des Suchgebiets und stelle über den Radius-Anfasser ein, wie weit im Umkreis nach Ladestationen gesucht wird.",
                     "api_key": "API-Schlüssel aus der EnBW-Karte über den Header Ocp-Apim-Subscription-Key in den Entwicklertools. Leer lassen, um den Schlüssel einer bereits konfigurierten Ladestation zu übernehmen."
                 }
             },
