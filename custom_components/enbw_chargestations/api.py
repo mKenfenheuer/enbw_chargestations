@@ -9,7 +9,7 @@ import aiohttp
 
 _LOGGER = logging.getLogger(__name__)
 
-API_BASE = "https://enbw-emp.azure-api.net/emobility-public-api/api/v1"
+API_BASE = "https://api.emp.emob-enbw.com/emobility-public-api/api/v1"
 
 DEFAULT_HEADERS = {
     "User-Agent": "Home Assistant",
