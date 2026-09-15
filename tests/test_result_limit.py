@@ -5,7 +5,7 @@ import re
 from aioresponses import aioresponses
 import pytest
 
-BASE = "https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations"
+BASE = "https://api.emp.emob-enbw.com/emobility-public-api/api/v1/chargestations"
 SEARCH_URL = re.compile(rf"^{re.escape(BASE)}\?.*")
 
 # hass.config home location used by the test harness.

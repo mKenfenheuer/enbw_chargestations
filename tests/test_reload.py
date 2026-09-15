@@ -62,7 +62,7 @@ async def test_reload(hass):
 
     with aioresponses() as m:
         m.get(
-            "https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations/393894",
+            "https://api.emp.emob-enbw.com/emobility-public-api/api/v1/chargestations/393894",
             payload=STATION_PAYLOAD,
             repeat=True,
         )

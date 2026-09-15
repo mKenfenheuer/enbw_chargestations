@@ -7,9 +7,9 @@ import pytest
 from homeassistant.data_entry_flow import FlowResultType
 
 SEARCH_URL = re.compile(
-    r"^https://enbw-emp\.azure-api\.net/emobility-public-api/api/v1/chargestations\?.*"
+    r"^https://api\.emp\.emob-enbw\.com/emobility-public-api/api/v1/chargestations\?.*"
 )
-DETAIL = "https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations/222"
+DETAIL = "https://api.emp.emob-enbw.com/emobility-public-api/api/v1/chargestations/222"
 
 def _station(number: int, address: str) -> dict:
     return {

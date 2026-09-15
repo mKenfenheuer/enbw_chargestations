@@ -6,7 +6,7 @@ from aioresponses import aioresponses
 import pytest
 from homeassistant.data_entry_flow import FlowResultType
 
-BASE = "https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations"
+BASE = "https://api.emp.emob-enbw.com/emobility-public-api/api/v1/chargestations"
 SEARCH_URL = re.compile(rf"^{re.escape(BASE)}\?.*")
 
 def _station(number: int, address: str | None) -> dict:

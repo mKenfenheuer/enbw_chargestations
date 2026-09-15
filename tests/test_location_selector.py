@@ -8,10 +8,10 @@ from homeassistant.helpers.selector import LocationSelector
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 SEARCH_URL_PATTERN = __import__("re").compile(
-    r"^https://enbw-emp\.azure-api\.net/emobility-public-api/api/v1/chargestations\?.*"
+    r"^https://api\.emp\.emob-enbw\.com/emobility-public-api/api/v1/chargestations\?.*"
 )
 DETAIL_URL = (
-    "https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations/393894"
+    "https://api.emp.emob-enbw.com/emobility-public-api/api/v1/chargestations/393894"
 )
 
 STATION = {

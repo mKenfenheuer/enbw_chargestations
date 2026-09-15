@@ -38,7 +38,7 @@ own device with its own set of entities.
     * Search for a charge station and open the detail pane
     * Search in the network requests for a request to the api, looking like this:
       ```
-      https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations/{STATION_NUMBER}
+      https://api.emp.emob-enbw.com/emobility-public-api/api/v1/chargestations/{STATION_NUMBER}
       ```
     * Open the request and search for the API Key in the headers. It is a hexadecimal value and will look like this:
       ```

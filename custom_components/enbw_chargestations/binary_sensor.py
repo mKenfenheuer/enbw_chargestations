@@ -44,8 +44,12 @@ async def async_setup_entry(
 
     data = coordinator.data or {}
     for index, point in enumerate(data.get("chargePoints", []), start=1):
+        max_power = max(
+            (c.get("maxPowerInKw", 0) for c in point.get("connectors", [])),
+            default=0,
+        )
         entities.append(
-            ChargePointBinarySensor(coordinator, point["evseId"], index)
+            ChargePointBinarySensor(coordinator, point["evseId"], index, max_power)
         )
 
     async_add_entities(entities)
@@ -124,11 +128,15 @@ class ChargePointBinarySensor(EnbwEntity, BinarySensorEntity):
         coordinator: EnbwDataUpdateCoordinator,
         point_id: str,
         index: int,
+        max_power_in_kw: float,
     ) -> None:
         """Initialize a charge point binary sensor."""
         super().__init__(coordinator)
         self._point_id = point_id
-        self._attr_translation_placeholders = {"index": str(index)}
+        self._attr_translation_placeholders = {
+            "index": str(index),
+            "power": f"{max_power_in_kw:g}",
+        }
         self._attr_unique_id = (
             f"enbw_station_{coordinator.station_number}_charge_point_{index}"
         )
@@ -158,25 +166,25 @@ class ChargePointBinarySensor(EnbwEntity, BinarySensorEntity):
 
     @property
     def icon(self) -> str:
-        """Return the icon based on plug type and occupancy."""
+        """Return the icon based on plug type, power and occupancy."""
         point = self._point()
         if point is None:
             return "mdi:car-electric"
-        plug_type_names = [
-            connector.get("plugTypeName") for connector in point.get("connectors", [])
-        ]
+        connectors = point.get("connectors", [])
         if self.is_on:
             return "mdi:car-electric-outline"
-        if len(plug_type_names) > 1:
+        if len(connectors) > 1:
             return "mdi:car-electric"
-        first = plug_type_names[0] if plug_type_names else None
-        if first in ("Typ 2", "Type 2"):
-            return "mdi:ev-plug-type2"
-        if first == "CCS (Typ 2)":
-            return "mdi:ev-plug-ccs2"
-        if first == "CHAdeMO":
+        connector = connectors[0] if connectors else None
+        plug_type_name = connector.get("plugTypeName") if connector else None
+        if plug_type_name == "CHAdeMO":
             return "mdi:ev-plug-chademo"
-        return "mdi:car-electric"
+        if plug_type_name and "tesla" in plug_type_name.lower():
+            return "mdi:ev-plug-tesla"
+        max_power = connector.get("maxPowerInKw") if connector else None
+        if max_power is not None and max_power > 22:
+            return "mdi:ev-plug-ccs2"
+        return "mdi:ev-plug-type2"
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:

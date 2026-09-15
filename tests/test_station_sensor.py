@@ -4,7 +4,7 @@ from aioresponses import aioresponses
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-URL = "https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations/393894"
+URL = "https://api.emp.emob-enbw.com/emobility-public-api/api/v1/chargestations/393894"
 
 PAYLOAD = {
     "stationId": 393894,

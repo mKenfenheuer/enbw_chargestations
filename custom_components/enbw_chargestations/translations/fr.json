@@ -1,0 +1,96 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Ajouter une station de recharge EnBW",
+                "description": "Indiquez les données de configuration. La clé API peut être lue depuis le [localisateur de stations de recharge EnBW](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder) via l'en-tête Ocp-Apim-Subscription-Key dans les outils de développement de votre navigateur.",
+                "data": {
+                    "api_key": "Clé API",
+                    "location": "Zone de recherche"
+                },
+                "data_description": {
+                    "api_key": "Laissez vide pour réutiliser la clé d'une station de recharge déjà configurée.",
+                    "location": "Faites glisser le repère au centre de la zone à rechercher et utilisez la poignée de rayon pour définir la distance de recherche des stations de recharge."
+                }
+            },
+            "search_station": {
+                "title": "Sélectionner la station de recharge",
+                "description": "Sélectionnez la station que vous souhaitez ajouter dans la liste ci-dessous.",
+                "data": {
+                    "station_number": "Station"
+                }
+            },
+            "reconfigure": {
+                "title": "Reconfigurer la station de recharge EnBW",
+                "description": "Mettez à jour la configuration de cette station de recharge.",
+                "data": {
+                    "name": "Nom d'affichage",
+                    "station_number": "Numéro de station",
+                    "api_key": "Clé API"
+                }
+            },
+            "reauth_confirm": {
+                "title": "Ré-authentifier la station de recharge EnBW",
+                "description": "La clé API a été rejetée. Veuillez saisir une nouvelle clé API. Vous la trouverez dans le [localisateur de stations de recharge EnBW](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder) via l'en-tête Ocp-Apim-Subscription-Key dans les outils de développement de votre navigateur.",
+                "data": {
+                    "api_key": "Clé API"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Échec de la connexion à l'API EnBW. Veuillez réessayer.",
+            "invalid_auth": "Clé API invalide.",
+            "no_stations_found": "Aucune station de recharge n'a été trouvée près de l'emplacement indiqué."
+        },
+        "abort": {
+            "already_configured": "Cette station de recharge est déjà configurée.",
+            "reconfigure_successful": "La reconfiguration a réussi.",
+            "reauth_successful": "La ré-authentification a réussi."
+        }
+    },
+    "exceptions": {
+        "cannot_connect": {
+            "message": "Échec de la connexion à l'API EnBW."
+        },
+        "invalid_auth": {
+            "message": "La clé API a été rejetée par l'API EnBW."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "charge_station": {
+                "name": "Disponibilité",
+                "state": {
+                    "off": "Occupée",
+                    "on": "Disponible"
+                }
+            },
+            "charge_point": {
+                "name": "Point de charge {index} {power} kW",
+                "state": {
+                    "off": "Disponible",
+                    "on": "Occupé"
+                }
+            }
+        },
+        "sensor": {
+            "station_number": {
+                "name": "Numéro de station"
+            },
+            "total_charge_points": {
+                "name": "Points de charge au total"
+            },
+            "available_charge_points": {
+                "name": "Points de charge disponibles"
+            },
+            "unknown_state_charge_points": {
+                "name": "Points de charge à l'état inconnu"
+            }
+        },
+        "device_tracker": {
+            "location": {
+                "name": "Emplacement"
+            }
+        }
+    }
+}

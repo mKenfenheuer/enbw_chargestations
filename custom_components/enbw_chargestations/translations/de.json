@@ -66,7 +66,7 @@
                 }
             },
             "charge_point": {
-                "name": "Ladepunkt {index}",
+                "name": "Ladepunkt {index} {power} kW",
                 "state": {
                     "off": "Frei",
                     "on": "Belegt"

@@ -26,7 +26,7 @@ STATION_PAYLOAD = {
     ],
 }
 
-URL = "https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations/393894"
+URL = "https://api.emp.emob-enbw.com/emobility-public-api/api/v1/chargestations/393894"
 
 @pytest.mark.asyncio
 async def test_reload_after_connection_error(hass):

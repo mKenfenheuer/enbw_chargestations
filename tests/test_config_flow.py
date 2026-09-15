@@ -9,7 +9,7 @@ from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType
 
 DOMAIN = "enbw_chargestations"
-BASE = "https://enbw-emp.azure-api.net/emobility-public-api/api/v1/chargestations"
+BASE = "https://api.emp.emob-enbw.com/emobility-public-api/api/v1/chargestations"
 SEARCH_URL = re.compile(rf"^{re.escape(BASE)}\?.*")
 
 USER_INPUT = {"location": {"latitude": 48.78, "longitude": 9.18, "radius": 10000}}

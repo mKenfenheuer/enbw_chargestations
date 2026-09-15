@@ -1,0 +1,96 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Aggiungi stazione di ricarica EnBW",
+                "description": "Fornisci i dati di configurazione. La chiave API può essere letta dal [localizzatore di stazioni di ricarica EnBW](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder) tramite l'intestazione Ocp-Apim-Subscription-Key negli strumenti per sviluppatori del browser.",
+                "data": {
+                    "api_key": "Chiave API",
+                    "location": "Area di ricerca"
+                },
+                "data_description": {
+                    "api_key": "Lascia vuoto per riutilizzare la chiave di una stazione di ricarica già configurata.",
+                    "location": "Sposta il marcatore al centro dell'area da cercare e usa la maniglia del raggio per impostare la distanza di ricerca delle stazioni di ricarica."
+                }
+            },
+            "search_station": {
+                "title": "Seleziona stazione di ricarica",
+                "description": "Seleziona la stazione che desideri aggiungere dall'elenco sottostante.",
+                "data": {
+                    "station_number": "Stazione"
+                }
+            },
+            "reconfigure": {
+                "title": "Riconfigura stazione di ricarica EnBW",
+                "description": "Aggiorna la configurazione di questa stazione di ricarica.",
+                "data": {
+                    "name": "Nome visualizzato",
+                    "station_number": "Numero stazione",
+                    "api_key": "Chiave API"
+                }
+            },
+            "reauth_confirm": {
+                "title": "Ri-autentica stazione di ricarica EnBW",
+                "description": "La chiave API è stata rifiutata. Inserisci una nuova chiave API. Puoi trovarla nel [localizzatore di stazioni di ricarica EnBW](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder) tramite l'intestazione Ocp-Apim-Subscription-Key negli strumenti per sviluppatori del browser.",
+                "data": {
+                    "api_key": "Chiave API"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Connessione all'API EnBW non riuscita. Riprova.",
+            "invalid_auth": "Chiave API non valida.",
+            "no_stations_found": "Non è stata trovata alcuna stazione di ricarica nelle vicinanze della posizione indicata."
+        },
+        "abort": {
+            "already_configured": "Questa stazione di ricarica è già configurata.",
+            "reconfigure_successful": "La riconfigurazione è riuscita.",
+            "reauth_successful": "La ri-autenticazione è riuscita."
+        }
+    },
+    "exceptions": {
+        "cannot_connect": {
+            "message": "Connessione all'API EnBW non riuscita."
+        },
+        "invalid_auth": {
+            "message": "La chiave API è stata rifiutata dall'API EnBW."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "charge_station": {
+                "name": "Disponibilità",
+                "state": {
+                    "off": "Occupata",
+                    "on": "Disponibile"
+                }
+            },
+            "charge_point": {
+                "name": "Punto di ricarica {index} {power} kW",
+                "state": {
+                    "off": "Disponibile",
+                    "on": "Occupato"
+                }
+            }
+        },
+        "sensor": {
+            "station_number": {
+                "name": "Numero stazione"
+            },
+            "total_charge_points": {
+                "name": "Punti di ricarica totali"
+            },
+            "available_charge_points": {
+                "name": "Punti di ricarica disponibili"
+            },
+            "unknown_state_charge_points": {
+                "name": "Punti di ricarica con stato sconosciuto"
+            }
+        },
+        "device_tracker": {
+            "location": {
+                "name": "Posizione"
+            }
+        }
+    }
+}
