@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from homeassistant.components.sensor import (
+    SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
     SensorStateClass,
@@ -15,6 +16,7 @@ from homeassistant.components.sensor import (
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from .const import (
     ATTR_LATITUDE,
@@ -31,13 +33,35 @@ PARALLEL_UPDATES = 0
 class EnbwSensorEntityDescription(SensorEntityDescription):
     """Describes an EnBW sensor entity."""
 
-    value_fn: Callable[[dict[str, Any]], int | str | None]
+    value_fn: Callable[[dict[str, Any]], int | str | datetime | None]
 
 
 def _station_id(data: dict[str, Any]) -> str | None:
     """Return the station id as a string, if the payload carries one."""
     station_id = data.get("stationId")
     return None if station_id is None else str(station_id)
+
+
+def _opening_hours(data: dict[str, Any]) -> str | None:
+    """Return a human readable description of the opening hours."""
+    opening_times = data.get("openingTimes") or {}
+    if opening_times.get("twentyFourSeven"):
+        return "24/7"
+    return data.get("openingHours")
+
+
+def _next_opening_time(data: dict[str, Any]) -> datetime | None:
+    """Return when the station next opens, if it is currently closed."""
+    opening_times = data.get("openingTimes") or {}
+    value = opening_times.get("nextOpeningTime")
+    return dt_util.parse_datetime(value) if value else None
+
+
+def _next_closing_time(data: dict[str, Any]) -> datetime | None:
+    """Return when the station next closes, if it is currently open."""
+    opening_times = data.get("openingTimes") or {}
+    value = opening_times.get("nextClosingTime")
+    return dt_util.parse_datetime(value) if value else None
 
 
 SENSORS: tuple[EnbwSensorEntityDescription, ...] = (
@@ -66,6 +90,24 @@ SENSORS: tuple[EnbwSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.get("unknownStateChargePoints"),
+    ),
+    EnbwSensorEntityDescription(
+        key="opening_hours",
+        translation_key="opening_hours",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_opening_hours,
+    ),
+    EnbwSensorEntityDescription(
+        key="next_opening_time",
+        translation_key="next_opening_time",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        value_fn=_next_opening_time,
+    ),
+    EnbwSensorEntityDescription(
+        key="next_closing_time",
+        translation_key="next_closing_time",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        value_fn=_next_closing_time,
     ),
 )
 
@@ -100,7 +142,7 @@ class EnbwSensor(EnbwEntity, SensorEntity):
         )
 
     @property
-    def native_value(self) -> int | str | None:
+    def native_value(self) -> int | str | datetime | None:
         """Return the value of the sensor."""
         if self.coordinator.data is None:
             return None
