@@ -41,6 +41,18 @@ from .entity import EnbwEntity
 PARALLEL_UPDATES = 0
 
 
+def _station_is_open(data: dict[str, Any]) -> bool | None:
+    """Return whether the station is currently open, if known."""
+    opening_times = data.get("openingTimes") or {}
+    if opening_times.get("twentyFourSeven"):
+        return True
+    if "nextClosingTime" in opening_times:
+        return True
+    if "nextOpeningTime" in opening_times:
+        return False
+    return None
+
+
 @dataclass(frozen=True, kw_only=True)
 class EnbwBinarySensorEntityDescription(BinarySensorEntityDescription):
     """Describes an EnBW diagnostic binary sensor entity."""
@@ -111,11 +123,13 @@ class ChargeStationStateBinarySensor(EnbwEntity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool | None:
-        """Return True if at least one charge point is available."""
+        """Return True if at least one charge point is free and reachable."""
         data = self.coordinator.data
         if data is None:
             return None
-        return data.get("availableChargePoints", 0) > 0
+        if data.get("availableChargePoints", 0) <= 0:
+            return False
+        return _station_is_open(data) is not False
 
     @property
     def icon(self) -> str:
@@ -201,11 +215,14 @@ class ChargePointBinarySensor(EnbwEntity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool | None:
-        """Return True if the charge point is occupied (not available)."""
+        """Return True if the charge point is occupied or unreachable."""
         point = self._point()
         if point is None:
             return None
-        return point.get("status") != "AVAILABLE"
+        if point.get("status") != "AVAILABLE":
+            return True
+        data = self.coordinator.data
+        return data is not None and _station_is_open(data) is False
 
     @property
     def icon(self) -> str:
@@ -267,14 +284,7 @@ class StationOpenBinarySensor(EnbwEntity, BinarySensorEntity):
         data = self.coordinator.data
         if data is None:
             return None
-        opening_times = data.get("openingTimes") or {}
-        if opening_times.get("twentyFourSeven"):
-            return True
-        if "nextClosingTime" in opening_times:
-            return True
-        if "nextOpeningTime" in opening_times:
-            return False
-        return None
+        return _station_is_open(data)
 
     @property
     def icon(self) -> str:
