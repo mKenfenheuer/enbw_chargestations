@@ -64,6 +64,8 @@ async def test_closed_station_is_not_reported_as_available(hass):
 
     assert hass.states.get("binary_sensor.test_station_open_now").state == "off"
     assert hass.states.get("binary_sensor.test_station_availability").state == "off"
+    assert hass.states.get("sensor.test_station_next_closing_time").state == "unknown"
+    assert hass.states.get("sensor.test_station_next_opening_time").state != "unknown"
     assert (
         hass.states.get("binary_sensor.test_station_charge_point_1_300_kw").state
         == "on"
@@ -81,3 +83,6 @@ async def test_24_7_station_with_free_point_is_available(hass):
         hass.states.get("binary_sensor.test_station_charge_point_1_300_kw").state
         == "off"
     )
+    # A 24/7 station never closes or opens, so the API omits both timestamps.
+    assert hass.states.get("sensor.test_station_next_opening_time").state == "unknown"
+    assert hass.states.get("sensor.test_station_next_closing_time").state == "unknown"
