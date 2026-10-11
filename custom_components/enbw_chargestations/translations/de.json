@@ -71,6 +71,27 @@
                     "off": "Frei",
                     "on": "Belegt"
                 }
+            },
+            "station_open": {
+                "name": "Jetzt geöffnet",
+                "state": {
+                    "off": "Geschlossen",
+                    "on": "Geöffnet"
+                }
+            },
+            "always_open": {
+                "name": "Durchgehend geöffnet",
+                "state": {
+                    "off": "Nein",
+                    "on": "Ja"
+                }
+            },
+            "closed_on_holidays": {
+                "name": "An Feiertagen geschlossen",
+                "state": {
+                    "off": "Nein",
+                    "on": "Ja"
+                }
             }
         },
         "sensor": {
@@ -85,6 +106,15 @@
             },
             "unknown_state_charge_points": {
                 "name": "Ladepunkte mit unbekanntem Status"
+            },
+            "opening_hours": {
+                "name": "Öffnungszeiten"
+            },
+            "next_opening_time": {
+                "name": "Nächste Öffnung"
+            },
+            "next_closing_time": {
+                "name": "Nächste Schließung"
             }
         },
         "device_tracker": {

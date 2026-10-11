@@ -71,6 +71,27 @@
                     "off": "Disponibile",
                     "on": "Occupato"
                 }
+            },
+            "station_open": {
+                "name": "Aperta ora",
+                "state": {
+                    "off": "Chiusa",
+                    "on": "Aperta"
+                }
+            },
+            "always_open": {
+                "name": "Aperta 24/7",
+                "state": {
+                    "off": "No",
+                    "on": "Sì"
+                }
+            },
+            "closed_on_holidays": {
+                "name": "Chiusa nei giorni festivi",
+                "state": {
+                    "off": "No",
+                    "on": "Sì"
+                }
             }
         },
         "sensor": {
@@ -85,6 +106,15 @@
             },
             "unknown_state_charge_points": {
                 "name": "Punti di ricarica con stato sconosciuto"
+            },
+            "opening_hours": {
+                "name": "Orari di apertura"
+            },
+            "next_opening_time": {
+                "name": "Prossima apertura"
+            },
+            "next_closing_time": {
+                "name": "Prossima chiusura"
             }
         },
         "device_tracker": {

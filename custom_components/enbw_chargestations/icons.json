@@ -1,5 +1,13 @@
 {
     "entity": {
+        "binary_sensor": {
+            "always_open": {
+                "default": "mdi:clock-time-eight-outline"
+            },
+            "closed_on_holidays": {
+                "default": "mdi:calendar-remove"
+            }
+        },
         "sensor": {
             "station_number": {
                 "default": "mdi:identifier"
@@ -12,6 +20,15 @@
             },
             "unknown_state_charge_points": {
                 "default": "mdi:ev-station"
+            },
+            "opening_hours": {
+                "default": "mdi:clock-outline"
+            },
+            "next_opening_time": {
+                "default": "mdi:door-open"
+            },
+            "next_closing_time": {
+                "default": "mdi:door-closed"
             }
         },
         "device_tracker": {

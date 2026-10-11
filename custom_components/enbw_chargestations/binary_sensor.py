@@ -2,23 +2,32 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
+    BinarySensorEntityDescription,
 )
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
     ATTR_ADDRESS,
+    ATTR_ALWAYS_OPEN,
     ATTR_AVAILABLE_CHARGE_POINTS,
     ATTR_CABLE_ATTACHED,
+    ATTR_CLOSED_ON_HOLIDAYS,
     ATTR_EVSE_ID,
     ATTR_MAX_POWER_IN_KW,
     ATTR_MAX_POWER_PER_PLUG_TYPE_IN_KW,
+    ATTR_NEXT_CLOSING_TIME,
+    ATTR_NEXT_OPENING_TIME,
+    ATTR_OPENING_HOURS,
     ATTR_OUT_OF_SERVICE,
     ATTR_PLUG_TYPE_NAME,
     ATTR_STATE,
@@ -32,6 +41,33 @@ from .entity import EnbwEntity
 PARALLEL_UPDATES = 0
 
 
+@dataclass(frozen=True, kw_only=True)
+class EnbwBinarySensorEntityDescription(BinarySensorEntityDescription):
+    """Describes an EnBW diagnostic binary sensor entity."""
+
+    is_on_fn: Callable[[dict[str, Any]], bool | None]
+
+
+DIAGNOSTIC_BINARY_SENSORS: tuple[EnbwBinarySensorEntityDescription, ...] = (
+    EnbwBinarySensorEntityDescription(
+        key="always_open",
+        translation_key="always_open",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        is_on_fn=lambda data: (data.get("openingTimes") or {}).get(
+            "twentyFourSeven"
+        ),
+    ),
+    EnbwBinarySensorEntityDescription(
+        key="closed_on_holidays",
+        translation_key="closed_on_holidays",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        is_on_fn=lambda data: (data.get("openingTimes") or {}).get(
+            "closedOnHolidays"
+        ),
+    ),
+)
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: EnbwConfigEntry,
@@ -40,7 +76,14 @@ async def async_setup_entry(
     """Set up the EnBW binary sensors from a config entry."""
     coordinator = config_entry.runtime_data
 
-    entities: list[BinarySensorEntity] = [ChargeStationStateBinarySensor(coordinator)]
+    entities: list[BinarySensorEntity] = [
+        ChargeStationStateBinarySensor(coordinator),
+        StationOpenBinarySensor(coordinator),
+    ]
+    entities.extend(
+        EnbwDiagnosticBinarySensor(coordinator, description)
+        for description in DIAGNOSTIC_BINARY_SENSORS
+    )
 
     data = coordinator.data or {}
     for index, point in enumerate(data.get("chargePoints", []), start=1):
@@ -206,3 +249,76 @@ class ChargePointBinarySensor(EnbwEntity, BinarySensorEntity):
             ATTR_UPDATED_AT: datetime.now(tz=timezone.utc),
             ATTR_OUT_OF_SERVICE: point.get("status") == "OUT_OF_SERVICE",
         }
+
+
+class StationOpenBinarySensor(EnbwEntity, BinarySensorEntity):
+    """Binary sensor reporting whether the station is currently open."""
+
+    _attr_translation_key = "station_open"
+
+    def __init__(self, coordinator: EnbwDataUpdateCoordinator) -> None:
+        """Initialize the station open binary sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"enbw_station_{coordinator.station_number}_open"
+
+    @property
+    def is_on(self) -> bool | None:
+        """Return True if the station is currently open."""
+        data = self.coordinator.data
+        if data is None:
+            return None
+        opening_times = data.get("openingTimes") or {}
+        if opening_times.get("twentyFourSeven"):
+            return True
+        if "nextClosingTime" in opening_times:
+            return True
+        if "nextOpeningTime" in opening_times:
+            return False
+        return None
+
+    @property
+    def icon(self) -> str:
+        """Return the icon for the entity."""
+        return "mdi:door-open" if self.is_on else "mdi:door-closed"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        """Return the opening hours details for this station."""
+        data = self.coordinator.data
+        if data is None:
+            return None
+        opening_times = data.get("openingTimes") or {}
+        return {
+            ATTR_ALWAYS_OPEN: data.get("alwaysOpen"),
+            ATTR_OPENING_HOURS: data.get("openingHours"),
+            ATTR_CLOSED_ON_HOLIDAYS: opening_times.get("closedOnHolidays"),
+            ATTR_NEXT_OPENING_TIME: opening_times.get("nextOpeningTime"),
+            ATTR_NEXT_CLOSING_TIME: opening_times.get("nextClosingTime"),
+            ATTR_STATION_ID: str(data.get("stationId")),
+            ATTR_UPDATED_AT: datetime.now(tz=timezone.utc),
+        }
+
+
+class EnbwDiagnosticBinarySensor(EnbwEntity, BinarySensorEntity):
+    """Representation of a diagnostic EnBW binary sensor described declaratively."""
+
+    entity_description: EnbwBinarySensorEntityDescription
+
+    def __init__(
+        self,
+        coordinator: EnbwDataUpdateCoordinator,
+        description: EnbwBinarySensorEntityDescription,
+    ) -> None:
+        """Initialize the diagnostic binary sensor."""
+        super().__init__(coordinator)
+        self.entity_description = description
+        self._attr_unique_id = (
+            f"enbw_station_{coordinator.station_number}_{description.key}"
+        )
+
+    @property
+    def is_on(self) -> bool | None:
+        """Return the value of the sensor."""
+        if self.coordinator.data is None:
+            return None
+        return self.entity_description.is_on_fn(self.coordinator.data)
