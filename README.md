@@ -13,6 +13,9 @@ The EnBw charge stations component for Home Assistant makes it possible to act b
 
 - Status of the charge point, including detailed information using attributes
 - Sensor counter to display the number of total, free and unknown state charge points
+- Opening hours: a sensor showing whether the station is currently open, plus
+  diagnostics for 24/7 operation, holiday closures, human-readable opening
+  hours, and the next opening/closing time
 - A device tracker per station exposing its location, so stations can be shown on the Home Assistant map and used with the Proximity integration
 - Easy integration using the search feature
 
@@ -84,8 +87,20 @@ Home Assistant release the tests run against — bump it to test against a newer
 core.
 
 ## Screenshots
+
+Multiple stations at a glance:
 ![image](screenshots/screen1.png)
+
+All entities for a single station:
 ![image](screenshots/screen2.png)
+
+Diagnostic details, including opening hours:
 ![image](screenshots/screen3.png)
+
+Opening hours attributes for a closed station:
+![image](screenshots/screen4.png)
+
+Opening hours attributes for 24/7 stations:
+![image](screenshots/screen5.png)
 
 
