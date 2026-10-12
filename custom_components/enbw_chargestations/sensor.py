@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timezone
+import re
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -47,7 +48,42 @@ def _opening_hours(data: dict[str, Any]) -> str | None:
     opening_times = data.get("openingTimes") or {}
     if opening_times.get("twentyFourSeven"):
         return "24/7"
-    return data.get("openingHours")
+    return _compress_opening_hours(data.get("openingHours"))
+
+
+_DAYS = ("Mo", "Di", "Mi", "Do", "Fr", "Sa", "So")
+_DAY_PATTERN = re.compile(r"(?<![A-Za-z])(Mo|Di|Mi|Do|Fr|Sa|So):\s*")
+
+
+def _compress_opening_hours(value: str | None) -> str | None:
+    """Merge consecutive days with identical hours, e.g. "Mo-Fr: 08:00 - 20:00"."""
+    if not value:
+        return value
+    parts = _DAY_PATTERN.split(value)
+    # parts: [prefix, day, hours, day, hours, ...]
+    if parts[0].strip() or len(parts) < 3:
+        return value
+    entries = [(parts[i], parts[i + 1].strip()) for i in range(1, len(parts), 2)]
+    if any(not hours for _, hours in entries):
+        return value
+
+    groups: list[list[Any]] = []  # [first_day, last_day, hours]
+    for day, hours in entries:
+        if (
+            groups
+            and groups[-1][2] == hours
+            and _DAYS.index(day) == _DAYS.index(groups[-1][1]) + 1
+        ):
+            groups[-1][1] = day
+        else:
+            groups.append([day, day, hours])
+
+    def label(first: str, last: str) -> str:
+        if first == last:
+            return first
+        return f"{first}-{last}"
+
+    return ", ".join(f"{label(f, l)}: {h}" for f, l, h in groups)
 
 
 def _next_opening_time(data: dict[str, Any]) -> datetime | None:
