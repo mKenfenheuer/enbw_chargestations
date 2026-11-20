@@ -107,6 +107,9 @@
             "unknown_state_charge_points": {
                 "name": "Punti di ricarica con stato sconosciuto"
             },
+            "operator": {
+                "name": "Gestore"
+            },
             "opening_hours": {
                 "name": "Orari di apertura"
             },

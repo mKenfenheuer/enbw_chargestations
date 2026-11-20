@@ -43,6 +43,11 @@ def _station_id(data: dict[str, Any]) -> str | None:
     return None if station_id is None else str(station_id)
 
 
+def _operator(data: dict[str, Any]) -> str | None:
+    """Return the operator of the charge station."""
+    return data.get("operator", "EnBW")
+
+
 def _opening_hours(data: dict[str, Any]) -> str | None:
     """Return a human readable description of the opening hours."""
     opening_times = data.get("openingTimes") or {}
@@ -126,6 +131,12 @@ SENSORS: tuple[EnbwSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.get("unknownStateChargePoints"),
+    ),
+    EnbwSensorEntityDescription(
+        key="operator",
+        translation_key="operator",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_operator,
     ),
     EnbwSensorEntityDescription(
         key="opening_hours",

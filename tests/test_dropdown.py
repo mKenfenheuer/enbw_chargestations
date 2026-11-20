@@ -14,7 +14,7 @@ USER_INPUT = {
     "api_key": "dummy",
 }
 
-def _station(number: int, address: str) -> dict:
+def _station(number: int, address: str, operator: str | None = None) -> dict:
     return {
         "stationId": number,
         "shortAddress": address,
@@ -24,6 +24,7 @@ def _station(number: int, address: str) -> dict:
         "numberOfChargePoints": 1,
         "availableChargePoints": 1,
         "unknownStateChargePoints": 0,
+        **({"operator": operator} if operator else {}),
         "plugTypeNames": ["CCS (Typ 2)"],
         "chargePoints": [
             {
@@ -66,6 +67,32 @@ async def test_station_picker_is_a_dropdown(hass):
     # Labels carry address, distance and power, so typing any of them filters.
     assert len(selector.config["options"]) == 12
     assert "Teststr." in selector.config["options"][0]["label"]
+
+@pytest.mark.asyncio
+async def test_station_picker_label_shows_operator(hass):
+    result = await hass.config_entries.flow.async_init(
+        "enbw_chargestations", context={"source": "user"}
+    )
+
+    stations = [
+        _station(100, "Teststr. 1", operator="Stadtwerke Musterstadt"),
+        _station(101, "Teststr. 2"),
+    ]
+    with aioresponses() as m:
+        m.get(SEARCH_URL, payload=stations, repeat=True)
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], USER_INPUT
+        )
+
+    selector = next(
+        value
+        for marker, value in result["data_schema"].schema.items()
+        if str(marker) == "station_number"
+    )
+    labels = {option["value"]: option["label"] for option in selector.config["options"]}
+    assert "Stadtwerke Musterstadt" in labels["100"]
+    # Falls back to EnBW when the API omits the operator.
+    assert "EnBW" in labels["101"]
 
 @pytest.mark.asyncio
 async def test_dropdown_selection_still_creates_the_entry(

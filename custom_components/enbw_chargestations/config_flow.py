@@ -41,7 +41,8 @@ def _station_option(station: dict[str, Any], distance_m: float) -> SelectOptionD
         label=(
             f"{station.get('shortAddress')} "
             f"({round(distance_m / 1000, 1)} km, "
-            f"{station.get('maxPowerInKw')} kw)"
+            f"{station.get('maxPowerInKw')} kw, "
+            f"{station.get('operator', 'EnBW')})"
         ),
     )
 

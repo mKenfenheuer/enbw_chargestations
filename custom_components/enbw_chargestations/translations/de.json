@@ -107,6 +107,9 @@
             "unknown_state_charge_points": {
                 "name": "Ladepunkte mit unbekanntem Status"
             },
+            "operator": {
+                "name": "Betreiber"
+            },
             "opening_hours": {
                 "name": "Öffnungszeiten"
             },
