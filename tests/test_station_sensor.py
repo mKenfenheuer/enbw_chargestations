@@ -15,6 +15,7 @@ PAYLOAD = {
     "numberOfChargePoints": 1,
     "availableChargePoints": 1,
     "unknownStateChargePoints": 0,
+    "operator": "Stadtwerke Musterstadt",
     "plugTypeNames": ["CCS (Typ 2)"],
     "chargePoints": [
         {
@@ -56,6 +57,49 @@ async def test_station_number_sensor(hass):
 
     state = hass.states.get("sensor.test_station_station_number")
     assert state.state == "393894"
+
+@pytest.mark.asyncio
+async def test_operator_sensor(hass):
+    entry = MockConfigEntry(
+        domain="enbw_chargestations",
+        title="Test Station",
+        data={"station_number": "393894", "api_key": "dummy", "name": "Test Station"},
+        unique_id="393894",
+    )
+    entry.add_to_hass(hass)
+
+    with aioresponses() as m:
+        m.get(URL, payload=PAYLOAD, repeat=True)
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.test_station_operator")
+    assert state is not None, [
+        s.entity_id for s in hass.states.async_all() if s.entity_id.startswith("sensor.")
+    ]
+    assert state.state == "Stadtwerke Musterstadt"
+
+@pytest.mark.asyncio
+async def test_operator_sensor_defaults_to_enbw(hass):
+    """A payload without an operator falls back to EnBW."""
+    payload = {**PAYLOAD}
+    del payload["operator"]
+
+    entry = MockConfigEntry(
+        domain="enbw_chargestations",
+        title="Test Station",
+        data={"station_number": "393894", "api_key": "dummy", "name": "Test Station"},
+        unique_id="393894",
+    )
+    entry.add_to_hass(hass)
+
+    with aioresponses() as m:
+        m.get(URL, payload=payload, repeat=True)
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.test_station_operator")
+    assert state.state == "EnBW"
 
 @pytest.mark.asyncio
 async def test_station_number_sensor_missing_id(hass):

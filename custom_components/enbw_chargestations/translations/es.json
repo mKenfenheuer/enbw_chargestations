@@ -1,0 +1,129 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Añadir estación de carga EnBW",
+                "description": "Introduce los datos de configuración. La clave de API se puede leer en el [buscador de estaciones de carga de EnBW](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder) a través de la cabecera Ocp-Apim-Subscription-Key en las herramientas de desarrollo de tu navegador.",
+                "data": {
+                    "api_key": "Clave de API",
+                    "location": "Área de búsqueda"
+                },
+                "data_description": {
+                    "api_key": "Déjalo vacío para reutilizar la clave de una estación de carga ya configurada.",
+                    "location": "Arrastra el marcador al centro del área de búsqueda y usa el control de radio para definir hasta dónde se buscan estaciones de carga."
+                }
+            },
+            "search_station": {
+                "title": "Seleccionar estación de carga",
+                "description": "Selecciona en la lista siguiente la estación que deseas añadir.",
+                "data": {
+                    "station_number": "Estación"
+                }
+            },
+            "reconfigure": {
+                "title": "Reconfigurar estación de carga EnBW",
+                "description": "Actualiza la configuración de esta estación de carga.",
+                "data": {
+                    "name": "Nombre visible",
+                    "station_number": "Número de estación",
+                    "api_key": "Clave de API"
+                }
+            },
+            "reauth_confirm": {
+                "title": "Volver a autenticar la estación de carga EnBW",
+                "description": "La clave de API fue rechazada. Introduce una nueva clave de API. La encontrarás en el [buscador de estaciones de carga de EnBW](https://www.enbw.com/elektromobilitaet/unterwegs-laden#ladestations-finder) a través de la cabecera Ocp-Apim-Subscription-Key en las herramientas de desarrollo de tu navegador.",
+                "data": {
+                    "api_key": "Clave de API"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "No se pudo conectar con la API de EnBW. Inténtalo de nuevo.",
+            "invalid_auth": "Clave de API no válida.",
+            "no_stations_found": "No se encontraron estaciones de carga cerca de la ubicación indicada."
+        },
+        "abort": {
+            "already_configured": "Esta estación de carga ya está configurada.",
+            "reconfigure_successful": "La reconfiguración se realizó correctamente.",
+            "reauth_successful": "La reautenticación se realizó correctamente."
+        }
+    },
+    "exceptions": {
+        "cannot_connect": {
+            "message": "No se pudo conectar con la API de EnBW."
+        },
+        "invalid_auth": {
+            "message": "La API de EnBW rechazó la clave de API."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "charge_station": {
+                "name": "Disponibilidad",
+                "state": {
+                    "off": "Ocupado",
+                    "on": "Disponible"
+                }
+            },
+            "charge_point": {
+                "name": "Punto de carga {index} {power} kW",
+                "state": {
+                    "off": "Disponible",
+                    "on": "Ocupado"
+                }
+            },
+            "station_open": {
+                "name": "Abierto ahora",
+                "state": {
+                    "off": "Cerrado",
+                    "on": "Abierto"
+                }
+            },
+            "always_open": {
+                "name": "24/7",
+                "state": {
+                    "off": "No",
+                    "on": "Sí"
+                }
+            },
+            "closed_on_holidays": {
+                "name": "Cerrado en festivos",
+                "state": {
+                    "off": "No",
+                    "on": "Sí"
+                }
+            }
+        },
+        "sensor": {
+            "station_number": {
+                "name": "Número de estación"
+            },
+            "total_charge_points": {
+                "name": "Puntos de carga totales"
+            },
+            "available_charge_points": {
+                "name": "Puntos de carga disponibles"
+            },
+            "unknown_state_charge_points": {
+                "name": "Puntos de carga con estado desconocido"
+            },
+            "operator": {
+                "name": "Operador"
+            },
+            "opening_hours": {
+                "name": "Horario de apertura"
+            },
+            "next_opening_time": {
+                "name": "Próxima hora de apertura"
+            },
+            "next_closing_time": {
+                "name": "Próxima hora de cierre"
+            }
+        },
+        "device_tracker": {
+            "location": {
+                "name": "Ubicación"
+            }
+        }
+    }
+}

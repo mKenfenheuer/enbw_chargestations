@@ -107,6 +107,9 @@
             "unknown_state_charge_points": {
                 "name": "Points de charge à l'état inconnu"
             },
+            "operator": {
+                "name": "Opérateur"
+            },
             "opening_hours": {
                 "name": "Horaires d'ouverture"
             },
